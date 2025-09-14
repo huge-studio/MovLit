@@ -1,0 +1,43 @@
+@namespace Huge.Ink
+@inherits ModuleBase
+
+@if (loading)
+{
+    <div class="p-3">
+        <div class="placeholder-glow mb-2">
+            <span class="placeholder col-12" style="height:40px;"></span>
+        </div>
+        <div class="placeholder-glow mb-2">
+            <span class="placeholder col-6"></span>
+        </div>
+        <div class="placeholder-glow mb-2">
+            <span class="placeholder col-8"></span>
+        </div>
+        <div class="placeholder-glow mb-2">
+            <span class="placeholder col-4"></span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <label class="form-label col-sm-3" for="ink-input">Ink: </label>
+            <div class="col-sm-9">
+                <textarea id="ink-input" class="form-control" @bind="@_settingsVM.Ink" @onfocusout="@CompileStory" rows="6" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">@($"Ink error: [{_errorMessage}]")</div>
+        }
+
+        <div class="row mb-1 align-items-center">
+            <label class="form-label col-sm-3" for="image-base">Continue Button Text: </label>
+            <div class="col-sm-9">
+                <input id="image-base" type="text" class="form-control" @bind="@_settingsVM.ContinueText" />
+            </div>
+        </div>
+    </div>
+}
