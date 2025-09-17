@@ -89,7 +89,7 @@ public partial class Index : ModuleBase, IDisposable
 
         try
         {
-            if (String.IsNullOrEmpty(_settingsVM.Ink))
+            if (string.IsNullOrEmpty(_settingsVM.Ink))
             {
                 _story = null;
             }
