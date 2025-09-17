@@ -1,4 +1,4 @@
-﻿namespace Huge.MoveLit.Models
+﻿namespace Huge.MovLit.Models
 {
     public static class InkTag
     {
