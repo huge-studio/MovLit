@@ -10,7 +10,7 @@ using InkRun = global::Ink.Runtime;
 using global::Ink;
 using System.ComponentModel;
 using System.Linq;
-using Huge.Ink.Models;
+using Huge.MovLit.Models;
 
 namespace Huge.Ink;
 
