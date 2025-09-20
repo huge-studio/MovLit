@@ -1,0 +1,22 @@
+@namespace Huge.Lottie
+@inherits ModuleBase
+
+@if (!_loading)
+{
+    {
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <label class="form-label col-sm-3" for="lottie-source">Lottie Source</label>
+                <div class="col-sm-9">
+                    <input id="lottie-source" type="text" class="form-control" @bind="@_settingsVM.LottieSource" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <label class="form-label col-sm-3" for="img-source">Image Source</label>
+                <div class="col-sm-9">
+                    <input id="img-source" type="text" class="form-control" @bind="@_settingsVM.ImgSource" />
+                </div>
+            </div>
+        </div>
+    }
+}

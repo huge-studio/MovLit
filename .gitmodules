@@ -1,0 +1,5 @@
+[submodule "ink"]
+	path = ink
+	url = https://github.com/trifoia/ink.git
+	branch = release/v1.2.0
+	ignore = all

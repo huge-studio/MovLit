@@ -1,0 +1,41 @@
+@namespace Huge.Lottie
+@inherits ModuleBase
+
+@if (PageState.EditMode)
+{
+    <div class="card m-2 lottie-edit-card">
+        <div class="card-body d-flex flex-column flex-sm-row align-items-start gap-2">
+            <h6 class="card-title text-primary m-0 me-auto">Lottie Module</h6>
+            <a class="btn btn-primary" href="@_settingsUrl">
+                <span class="bi bi-gear"></span> Settings
+            </a>
+        </div>
+    </div>
+}
+else if (loading)
+{
+    <div class="lottie-wrapper lottie-loading d-flex justify-content-center align-items-center">
+        <div class="spinner-border text-secondary" role="status" aria-label="Loading">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="lottie-wrapper lottie-360">
+        @if (!string.IsNullOrWhiteSpace(_lottieSource))
+        {
+            <dotlottie-wc @ref="@_lottieElem"
+                          src="@_lottieSource"
+                          background="transparent"
+                          speed="1"
+                          autoplay loop
+                          mode="forward">
+            </dotlottie-wc>
+        }
+        else if (!string.IsNullOrWhiteSpace(_imageSource))
+        {
+            <img src="@_imageSource" />
+        }
+    </div>
+}
