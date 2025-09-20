@@ -416,3 +416,5 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+Huge.MovLit/Server/wwwroot/Themes/
