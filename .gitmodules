@@ -1,5 +1,5 @@
 [submodule "ink"]
 	path = ink
-	url = https://github.com/huge/ink.git
+	url = https://github.com/huge-studio/ink.git
 	branch = release/v1.2.0
 	ignore = all
