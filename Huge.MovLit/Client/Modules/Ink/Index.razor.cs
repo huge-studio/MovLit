@@ -104,7 +104,7 @@ public partial class Index : ModuleBase, IDisposable
             _story = compiledStory;
 
             // bind external functions
-            InkFunctions.BindExternalFunctions(_story, SiteState, this);
+            InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager);
         }
         catch (Exception ex)
         {
