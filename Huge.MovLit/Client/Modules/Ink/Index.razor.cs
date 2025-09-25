@@ -185,13 +185,13 @@ public partial class Index : ModuleBase, IDisposable
         if (_story.currentTags.Any())
         {
 
-            var lottieUrl = ParseTagUrl(_story.currentTags, "lottie:");
+            var lottieUrl = UrlParser.ParseTagUrl(_story.currentTags, "lottie:", NavigationManager);
             if (!string.IsNullOrEmpty(lottieUrl))
             {
                 SiteState.Properties.Lottie = lottieUrl;
             }
 
-            var imageUrl = ParseTagUrl(_story.currentTags, "image:");
+            var imageUrl = UrlParser.ParseTagUrl(_story.currentTags, "image:", NavigationManager);
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 SiteState.Properties.Image = imageUrl;
@@ -220,34 +220,6 @@ public partial class Index : ModuleBase, IDisposable
 
         StateHasChanged();
     }
-
-    private string ParseTagUrl(IEnumerable<string> tags, string prefix)
-    {
-        var tag = tags.FirstOrDefault(t => t.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
-        if (tag == null) return null;
-
-        var value = tag.Substring(prefix.Length).Trim();
-
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
-
-        // Case 1: explicit absolute URL
-        if (value.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-        // Case 2: app-relative (~)
-        if (value.StartsWith("~"))
-        {
-            // turn "~/files/..." into an absolute URL based on NavigationManager.BaseUri
-            return NavigationManager.BaseUri.TrimEnd('/') + value[1..];
-        }
-
-        // Case 3: shorthand hostname (/myfolder/myimage.png
-        return $"https://{value}";
-    }
-
 
     async void PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
