@@ -129,8 +129,19 @@ public partial class Index : ModuleBase, IDisposable
         {
             if (_story.canContinue)
             {
-                string nextLine = _story.ContinueMaximally();
-                _currentLine = ProcessStoryText(nextLine);
+                //string nextLine = _story.ContinueMaximally();
+                //_currentLine = ProcessStoryText(nextLine);
+                //_inkState.Add(_story.state.ToJson());
+               
+                var allTags = new List<string>();
+                var allLines = new List<string>();
+
+                while (_story.canContinue)
+                {
+                    allLines.Add(_story.Continue());
+                    allTags.AddRange(_story.currentTags);
+                }
+                _currentLine = ProcessStoryText(string.Concat(allLines));
                 _inkState.Add(_story.state.ToJson());
             }
 
@@ -188,14 +199,14 @@ public partial class Index : ModuleBase, IDisposable
         }
 
         _currentChoices = _story.currentChoices
-                                        .Select(choice => new CustomInkChoice
-                                        {
-                                            Text = choice.text,
-                                            Tags = choice.tags,
-                                            Index = choice.index,
-                                            PathStringOnChoice = choice.pathStringOnChoice
-                                        })
-                                        .ToList();
+                                .Select(choice => new CustomInkChoice
+                                {
+                                    Text = choice.text,
+                                    Tags = choice.tags,
+                                    Index = choice.index,
+                                    PathStringOnChoice = choice.pathStringOnChoice
+                                })
+                                .ToList();
 
         _hasNext = _story.canContinue;
         _hasPrevious = _inkState.Count > 1;
@@ -233,8 +244,8 @@ public partial class Index : ModuleBase, IDisposable
             return NavigationManager.BaseUri.TrimEnd('/') + value[1..];
         }
 
-        // Case 3: shorthand hostname
-        return $"https://{value}";
+        // Case 3: shorthand hostname (/myfolder/myimage.png
+        return value;
     }
 
 
