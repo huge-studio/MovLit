@@ -129,22 +129,10 @@ public partial class Index : ModuleBase, IDisposable
         {
             if (_story.canContinue)
             {
-                //string nextLine = _story.ContinueMaximally();
-                //_currentLine = ProcessStoryText(nextLine);
-                //_inkState.Add(_story.state.ToJson());
-               
-                var allTags = new List<string>();
-                var allLines = new List<string>();
-
-                while (_story.canContinue)
-                {
-                    allLines.Add(_story.Continue());
-                    allTags.AddRange(_story.currentTags);
-                }
-                _currentLine = ProcessStoryText(string.Concat(allLines));
+                string nextLine = _story.ContinueMaximally();
+                _currentLine = ProcessStoryText(nextLine);
                 _inkState.Add(_story.state.ToJson());
             }
-
             ProcessTags();
         }
     }
@@ -245,7 +233,7 @@ public partial class Index : ModuleBase, IDisposable
         }
 
         // Case 3: shorthand hostname (/myfolder/myimage.png
-        return value;
+        return $"https://{value}";
     }
 
 

@@ -82,6 +82,7 @@ public partial class Index : ModuleBase, IDisposable
             if (!PageState.EditMode && !string.IsNullOrWhiteSpace(src))
             {
                 _lottieSource = src;
+                _imageSource = string.Empty;
                 _needsPlay = true;
                 StateHasChanged();
             }
@@ -92,6 +93,7 @@ public partial class Index : ModuleBase, IDisposable
             if (!PageState.EditMode && !string.IsNullOrWhiteSpace(src))
             {
                 _imageSource = src;
+                _lottieSource = string.Empty;
                 StateHasChanged();
             }
         }
