@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +38,14 @@ namespace Huge.Ink
                 // turn "~/files/..." into an absolute URL based on NavigationManager.BaseUri
                 return nav.BaseUri.TrimEnd('/') + value[1..];
             }
+            // Case 3: showLottie method writen as showLottie("/files...")
+            if (value.StartsWith("/"))
+            {
+                // Case 3: showLottie method writen as showLottie("/files...")
+                return nav.BaseUri.TrimEnd('/') + value;
+            }
 
-            // Case 3: Add https://
+            // Case 4: Add https://
             return $"https://{value}";
         }
     }

@@ -1,16 +1,17 @@
-using Microsoft.AspNetCore.Components;
-using System;
-using System.Net;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Oqtane.Modules;
-using Oqtane.Shared;
-using Oqtane.Services;
-using InkRun = global::Ink.Runtime;
 using global::Ink;
+using Huge.MovLit.Models;
+using Microsoft.AspNetCore.Components;
+using Oqtane.Modules;
+using Oqtane.Services;
+using Oqtane.Shared;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Huge.MovLit.Models;
+using System.Net;
+using System.Threading.Tasks;
+using System.Xml;
+using InkRun = global::Ink.Runtime;
 
 namespace Huge.Ink;
 
@@ -182,7 +183,8 @@ public partial class Index : ModuleBase, IDisposable
             return;
         }
 
-        if (_story.currentTags.Any())
+        //
+        if (_story.currentTags.Any(s => s.Contains("lottie", StringComparison.OrdinalIgnoreCase) || s.Contains("image", StringComparison.OrdinalIgnoreCase)))
         {
 
             var lottieUrl = UrlParser.ParseTagUrl(_story.currentTags, "lottie:", NavigationManager);

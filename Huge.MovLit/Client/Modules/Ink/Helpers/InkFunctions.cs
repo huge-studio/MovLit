@@ -1,4 +1,4 @@
-﻿using Oqtane.Modules;
+using Oqtane.Modules;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using InkRun = global::Ink.Runtime;
@@ -106,6 +106,5 @@ namespace Huge.Ink
             var page = moduleBase.NavigateUrl(pageName);
             nav.NavigateTo(page);
         }
-
     }
 }
