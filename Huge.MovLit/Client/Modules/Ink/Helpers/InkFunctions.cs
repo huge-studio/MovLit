@@ -1,8 +1,9 @@
-﻿using Oqtane.Modules;
+using Oqtane.Modules;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using InkRun = global::Ink.Runtime;
 using Oqtane.UI;
+using Microsoft.AspNetCore.Components;
 
 
 // In keeping with the ink documentation, we will need to create a class that will contain the functions that we want to expose to the ink script.
@@ -13,7 +14,6 @@ namespace Huge.Ink
 {
     internal class InkFunctions
     {
-
         // get ink headers
         public static string GetHeaders()
         {
@@ -28,13 +28,13 @@ namespace Huge.Ink
             return headers;
         }
 
-        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase)
+        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav)
         {
-            story.BindExternalFunction("playSound", (string url) => PlaySound(url,siteState));
-            story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState));
-            story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState));
-            story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase));
-            story.BindExternalFunction("navigatePage", (string name) => NavigatePage(name, moduleBase));
+            story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState));
+            story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));
+            story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav));
+            story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase, nav));
+            story.BindExternalFunction("navigatePage", (string name) => NavigatePage(name, moduleBase, nav));
         }
 
         /// <summary>
@@ -67,9 +67,7 @@ namespace Huge.Ink
                     // message any listening components that the inkvariable has changed
                     siteState.Properties.InkVariable = new
                         KeyValuePair<string, string>(varName, newValue.ToString());
-                    
                 });
-
             }
         }
 
@@ -79,25 +77,34 @@ namespace Huge.Ink
             siteState.Properties.SoundUrl = soundUrl;
         }
         // show image
-        public static void ShowImage(string imageUrl, SiteState siteState)
+        public static void ShowImage(string imageUrl, SiteState siteState, NavigationManager nav)
         {
-            siteState.Properties.Image = imageUrl;
+            imageUrl = UrlParser.ParseTagUrl(new List<string> { $"image:{imageUrl}" }, "image:", nav);
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                siteState.Properties.Image = imageUrl;
+            }
         }
         // show lottie
-        public static void ShowLottie(string lottieUrl, SiteState siteState)
+        public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav)
         {
-            siteState.Properties.Lottie = lottieUrl;
+            lottieUrl = UrlParser.ParseTagUrl(new List<string> { $"lottie:{lottieUrl}" }, "lottie:", nav);
+            if (!string.IsNullOrEmpty(lottieUrl))
+            {
+                siteState.Properties.Lottie = lottieUrl;
+            }
         }
         // navigate url
-        public static void NavigateUrl(string url, ModuleBase moduleBase)
+        public static void NavigateUrl(string url, ModuleBase moduleBase, NavigationManager nav)
         {
-            moduleBase.NavigateUrl(url);
+            var page = moduleBase.NavigateUrl(url);
+            nav.NavigateTo(page);
         }
         // navigate page
-        public static void NavigatePage(string pageName, ModuleBase moduleBase)
+        public static void NavigatePage(string pageName, ModuleBase moduleBase, NavigationManager nav)
         {
-            moduleBase.NavigateUrl(pageName);
+            var page = moduleBase.NavigateUrl(pageName);
+            nav.NavigateTo(page);
         }
-
     }
 }

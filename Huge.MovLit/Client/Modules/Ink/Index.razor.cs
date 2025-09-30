@@ -1,16 +1,17 @@
-using Microsoft.AspNetCore.Components;
-using System;
-using System.Net;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Oqtane.Modules;
-using Oqtane.Shared;
-using Oqtane.Services;
-using InkRun = global::Ink.Runtime;
 using global::Ink;
+using Huge.MovLit.Models;
+using Microsoft.AspNetCore.Components;
+using Oqtane.Modules;
+using Oqtane.Services;
+using Oqtane.Shared;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Huge.MovLit.Models;
+using System.Net;
+using System.Threading.Tasks;
+using System.Xml;
+using InkRun = global::Ink.Runtime;
 
 namespace Huge.Ink;
 
@@ -104,7 +105,7 @@ public partial class Index : ModuleBase, IDisposable
             _story = compiledStory;
 
             // bind external functions
-            InkFunctions.BindExternalFunctions(_story, SiteState, this);
+            InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager);
         }
         catch (Exception ex)
         {
@@ -129,8 +130,19 @@ public partial class Index : ModuleBase, IDisposable
         {
             if (_story.canContinue)
             {
-                string nextLine = _story.ContinueMaximally();
-                _currentLine = ProcessStoryText(nextLine);
+                //string nextLine = _story.ContinueMaximally();
+                //_currentLine = ProcessStoryText(nextLine);
+                //_inkState.Add(_story.state.ToJson());
+
+                var allTags = new List<string>();
+                var allLines = new List<string>();
+
+                while (_story.canContinue)
+                {
+                    allLines.Add(_story.Continue());
+                    allTags.AddRange(_story.currentTags);
+                }
+                _currentLine = ProcessStoryText(string.Concat(allLines));
                 _inkState.Add(_story.state.ToJson());
             }
 
@@ -171,16 +183,17 @@ public partial class Index : ModuleBase, IDisposable
             return;
         }
 
-        if (_story.currentTags.Any())
+        //
+        if (_story.currentTags.Any(s => s.Contains("lottie", StringComparison.OrdinalIgnoreCase) || s.Contains("image", StringComparison.OrdinalIgnoreCase)))
         {
 
-            var lottieUrl = ParseTagUrl(_story.currentTags, "lottie:");
+            var lottieUrl = UrlParser.ParseTagUrl(_story.currentTags, "lottie:", NavigationManager);
             if (!string.IsNullOrEmpty(lottieUrl))
             {
                 SiteState.Properties.Lottie = lottieUrl;
             }
 
-            var imageUrl = ParseTagUrl(_story.currentTags, "image:");
+            var imageUrl = UrlParser.ParseTagUrl(_story.currentTags, "image:", NavigationManager);
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 SiteState.Properties.Image = imageUrl;
@@ -188,14 +201,14 @@ public partial class Index : ModuleBase, IDisposable
         }
 
         _currentChoices = _story.currentChoices
-                                        .Select(choice => new CustomInkChoice
-                                        {
-                                            Text = choice.text,
-                                            Tags = choice.tags,
-                                            Index = choice.index,
-                                            PathStringOnChoice = choice.pathStringOnChoice
-                                        })
-                                        .ToList();
+                                .Select(choice => new CustomInkChoice
+                                {
+                                    Text = choice.text,
+                                    Tags = choice.tags,
+                                    Index = choice.index,
+                                    PathStringOnChoice = choice.pathStringOnChoice
+                                })
+                                .ToList();
 
         _hasNext = _story.canContinue;
         _hasPrevious = _inkState.Count > 1;
@@ -209,34 +222,6 @@ public partial class Index : ModuleBase, IDisposable
 
         StateHasChanged();
     }
-
-    private string ParseTagUrl(IEnumerable<string> tags, string prefix)
-    {
-        var tag = tags.FirstOrDefault(t => t.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
-        if (tag == null) return null;
-
-        var value = tag.Substring(prefix.Length).Trim();
-
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
-
-        // Case 1: explicit absolute URL
-        if (value.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-        // Case 2: app-relative (~)
-        if (value.StartsWith("~"))
-        {
-            // turn "~/files/..." into an absolute URL based on NavigationManager.BaseUri
-            return NavigationManager.BaseUri.TrimEnd('/') + value[1..];
-        }
-
-        // Case 3: shorthand hostname
-        return $"https://{value}";
-    }
-
 
     async void PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
