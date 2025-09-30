@@ -61,7 +61,7 @@ namespace Huge.Lottie
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["FileUploadError"], MessageType.Error);
+                    AddModuleMessage("Error uploading file", MessageType.Error);
                 }
             }
             catch (Exception ex)
