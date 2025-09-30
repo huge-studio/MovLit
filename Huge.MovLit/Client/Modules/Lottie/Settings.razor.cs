@@ -7,6 +7,7 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Huge.MoveLit.Enums;
 
 
 namespace Huge.Lottie
@@ -21,6 +22,9 @@ namespace Huge.Lottie
 
         private SettingsViewModel _settingsVM;
         private bool _loading = true;
+        private string _sourceType = NotifyPropertyName.Lottie;
+        private bool _useLottieUrl = false;
+        private bool _useImageUrl = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -36,11 +40,58 @@ namespace Huge.Lottie
             }
         }
 
+        private async Task HandleUpload(int fileId)
+        {
+            try
+            {
+                var uploadedFile = await FileService.GetFileAsync(fileId);
+
+                if (uploadedFile != null)
+                {
+                    if (_sourceType == NotifyPropertyName.Lottie)
+                    {
+                        _settingsVM.LottieSource = uploadedFile.Url;
+                        _settingsVM.ImgSource = null;
+                    }
+                    else
+                    {
+                        _settingsVM.ImgSource = uploadedFile.Url;
+                        _settingsVM.LottieSource = null;
+                    }
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["FileUploadError"], MessageType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                AddModuleMessage(ex.Message, MessageType.Error);
+                await logger.LogError(ex, "Error Uploading File {Error}", ex.Message);
+            }
+        }
+
+
         public async Task UpdateSettings()
         {
             Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
             _settingsVM.SetSettings(SettingService, settings);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
+
+        public void SetSourceType(string type)
+        {
+            _sourceType = type;
+
+            if (type == "lottie")
+            {
+                _settingsVM.ImgSource = null;
+            }
+            else
+            {
+                _settingsVM.LottieSource = null;
+            }
+        }
     }
 }
+
