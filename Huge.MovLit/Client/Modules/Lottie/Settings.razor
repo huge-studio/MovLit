@@ -9,7 +9,7 @@
         <!-- Radio buttons to choose the source type -->
         <div class="row mb-3">
             <div class="col-sm-3">
-                <label class="form-label">Source Type</label>
+                <Label For="sourceType" class="form-label" HelpText="Select source type to upload">Source Type</Label>
             </div>
             <div class="col-sm-9">
                 <div class="form-check form-check-inline">
@@ -38,18 +38,18 @@
         @if (_sourceType == NotifyPropertyName.Lottie)
         {
             <div class="row mb-1 align-items-center">
-                <label class="form-label col-sm-3" for="lottie-source">Lottie Source</label>
+                <Label For="lottie-source" class="form-label col-sm-3" HelpText="Use an external URL or upload a .json or .lottie file.">Lottie Source</Label>
                 <div class="col-sm-9">
                     @if (_useLottieUrl)
                     {
-                        <input id="lottie-source" type="text" class="form-control" @bind="_settingsVM.LottieSource" />
+                        <input id="lottie-source" type="text" class="form-control" @bind="_settingsVM.LottieSource" placeholder="https://lottie.host/123abc.json" />
                     }
                     else
                     {
-                        <input id="lottiePath" class="form-control" @bind="_settingsVM.LottieSource" disabled />
+                        <input id="lottiePath" class="form-control mb-2" @bind="_settingsVM.LottieSource" disabled />
                         <FileManager OnSelectFile="fileId => HandleUpload(fileId)"></FileManager>
                     }
-                    <div class="form-check">
+                    <div class="form-check mt-2">
                         <input class="form-check-input mt-2"
                                type="checkbox"
                                id="lottieUrlToggle"
@@ -64,18 +64,17 @@
         else if (_sourceType == NotifyPropertyName.Image)
         {
             <div class="row mb-1 align-items-center">
-                <label class="form-label col-sm-3" for="img-source">Image Source</label>
+                <Label For="img-source" class="form-label col-sm-3" HelpText="Use an external URL or upload an image file.">Image Source</Label>
                 <div class="col-sm-9">
                     @if (_useImageUrl)
                     {
-                        <input id="img-source" type="text" class="form-control" @bind="_settingsVM.ImgSource" />
+                        <input id="img-source" type="text" class="form-control" @bind="_settingsVM.ImgSource"placeholder="https://domain.com/image.jpg" />
                     }
                     else
                     {
-                        <input id="imagePath" class="form-control" @bind="_settingsVM.ImgSource" disabled />
+                        <input id="imagePath" class="form-control mb-2" @bind="_settingsVM.ImgSource" disabled />
                         <FileManager OnSelectFile="fileId => HandleUpload(fileId)"></FileManager>
                     }
-                    <!-- TODO: replace with file picker if desir<Settings />ed -->
                     <div class="form-check mt-2">
                         <input class="form-check-input mt-2"
                                type="checkbox"
