@@ -5,6 +5,7 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -126,27 +127,49 @@ public partial class Index : ModuleBase, IDisposable
 
     private void Next()
     {
-        if (_story != null)
+        if(_story == null) return;
+
+        //If using the lottie initial source, set it in the ink variable only once
+        if (_story.variablesState.GlobalVariableExistsWithName("initialUrl") && string.IsNullOrWhiteSpace(_story.variablesState["initialUrl"] as string))
         {
-            if (_story.canContinue)
+            SetInitialUrl();
+        }
+
+        if (_story.canContinue)
+        {
+            //string nextLine = _story.ContinueMaximally();
+            //_currentLine = ProcessStoryText(nextLine);
+            //_inkState.Add(_story.state.ToJson());
+
+            var allTags = new List<string>();
+            var allLines = new List<string>();
+
+            while (_story.canContinue)
             {
-                //string nextLine = _story.ContinueMaximally();
-                //_currentLine = ProcessStoryText(nextLine);
-                //_inkState.Add(_story.state.ToJson());
-
-                var allTags = new List<string>();
-                var allLines = new List<string>();
-
-                while (_story.canContinue)
-                {
-                    allLines.Add(_story.Continue());
-                    allTags.AddRange(_story.currentTags);
-                }
-                _currentLine = ProcessStoryText(string.Concat(allLines));
-                _inkState.Add(_story.state.ToJson());
+                allLines.Add(_story.Continue());
+                allTags.AddRange(_story.currentTags);
             }
+            _currentLine = ProcessStoryText(string.Concat(allLines));
+            _inkState.Add(_story.state.ToJson());
+        }
 
-            ProcessTags();
+        ProcessTags();
+    }
+
+    public void SetInitialUrl()
+    {
+        var lottie = SiteState.Properties.Lottie;
+        var image = SiteState.Properties.Image;
+
+        // pick the first non-empty source
+        var source = !string.IsNullOrWhiteSpace(lottie) ? lottie
+                   : !string.IsNullOrWhiteSpace(image) ? image
+                   : null;
+
+        // only set if we have a source and the Ink var is blank
+        if (!string.IsNullOrWhiteSpace(source))
+        {
+            _story.variablesState["initialUrl"] = source;
         }
     }
 

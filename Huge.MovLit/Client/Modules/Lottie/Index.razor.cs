@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Modules;
 using Oqtane.Services;
@@ -45,6 +45,8 @@ public partial class Index : ModuleBase, IDisposable
 
             _lottieSource = vm.LottieSource;
             _imageSource = vm.ImgSource;
+
+            PublishInitialToSiteState();
         }
         catch (Exception ex)
         {
@@ -57,6 +59,30 @@ public partial class Index : ModuleBase, IDisposable
         finally
         {
             loading = false;
+        }
+    }
+
+    // Seed SiteState with initial media so ProcessTags can restore on "Previous"
+    private void PublishInitialToSiteState()
+    {
+        if (PageState.EditMode)
+        {
+            return;
+        }
+        // If there is already a published source to sitestate do nothing
+        if (!string.IsNullOrWhiteSpace(SiteState.Properties.Lottie) || !string.IsNullOrWhiteSpace(SiteState.Properties.Image))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_lottieSource))
+        {
+            SiteState.Properties.Lottie = _lottieSource;
+            _needsPlay = true;
+        }
+        else if (!string.IsNullOrWhiteSpace(_imageSource))
+        {
+            SiteState.Properties.Image = _imageSource;
         }
     }
 
