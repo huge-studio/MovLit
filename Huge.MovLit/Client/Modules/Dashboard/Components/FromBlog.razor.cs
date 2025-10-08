@@ -36,7 +36,7 @@ namespace Huge.Dashboard
         private void Navigate(Huge.MovLit.Models.BlogPost post)
         {
             if (post == null || string.IsNullOrEmpty(post.Slug)) return;
-            var path = post.Slug.StartsWith("/") ? post.Slug : $"/blog/{post.Slug}";
+            var path = post.Slug.StartsWith("/") ? post.Slug : $"/blog/!/{SiteState.Alias.AliasId}/{post.Slug}";
             Navigation.NavigateTo(path);
         }
     }
