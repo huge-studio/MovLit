@@ -1,0 +1,238 @@
+@namespace Huge.Dashboard
+@inherits Oqtane.Modules.ModuleBase
+@using Huge.MovLit.Enums
+
+@if (!_loading)
+{
+    <div class="container py-3">
+        <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sections-tab" type="button" role="tab">Sections</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#links-tab" type="button" role="tab">Quick Links</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tags-tab" type="button" role="tab">Popular Tags</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#blog-tab" type="button" role="tab">Blog</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#hero-tab" type="button" role="tab">Hero</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="sections-tab" role="tabpanel">
+                <div class="mb-3">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="show-hero" @bind="_vm.ShowHero" />
+                        <label class="form-check-label" for="show-hero">Show hero section</label>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-primary me-2" @onclick="AddSection">
+                        <span class="bi bi-plus"></span> Add Section
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" @onclick="UpdateSettings">
+                        <span class="bi bi-save"></span> Save
+                    </button>
+                </div>
+
+                @if (_vm.Sections.Count == 0)
+                {
+                    <div class="alert alert-info">No sections yet. Click "Add Section" to create one.</div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @for (int i = 0; i < _vm.Sections.Count; i++)
+                        {
+                            var index = i;
+                            var s = _vm.Sections[index];
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="flex-grow-1">
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-sm-4">
+                                                <label class="form-label small mb-1">Title</label>
+                                                <input class="form-control form-control-sm" @bind="s.Title" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="form-label small mb-1">Action Text</label>
+                                                <input class="form-control form-control-sm" @bind="s.ActionText" />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <label class="form-label small mb-1">Cards</label>
+                                                <input class="form-control form-control-sm" type="number" min="1" max="30" @bind-value="s.Cards" @bind-value:event="oninput" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="form-label small mb-1">Layout</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="h-@index" @bind="s.Horizontal" />
+                                                    <label class="form-check-label" for="h-@index">Horizontal</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="(() => MoveUp(index))" disabled="@(index==0)">
+                                            <span class="bi bi-arrow-up"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="(() => MoveDown(index))" disabled="@(index==_vm.Sections.Count-1)">
+                                            <span class="bi bi-arrow-down"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="(() => RemoveSection(index))">
+                                            <span class="bi bi-trash"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="tab-pane fade" id="links-tab" role="tabpanel">
+                <div class="mb-3">
+                    <button type="button" class="btn btn-sm btn-primary me-2" @onclick="AddLink">
+                        <span class="bi bi-plus"></span> Add Link
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" @onclick="UpdateSettings">
+                        <span class="bi bi-save"></span> Save
+                    </button>
+                </div>
+
+                @if (_vm.QuickLinks.Count == 0)
+                {
+                    <div class="alert alert-info">No quick links yet. Click "Add Link" to create one.</div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @for (int i = 0; i < _vm.QuickLinks.Count; i++)
+                        {
+                            var index = i;
+                            var q = _vm.QuickLinks[index];
+                            <div class="list-group-item">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-sm-3">
+                                        <label class="form-label small mb-1">External URL?</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="ext-@index" @bind="q.IsExternal" />
+                                            <label class="form-check-label" for="ext-@index">External</label>
+                                        </div>
+                                    </div>
+
+                                    @if (!q.IsExternal)
+                                    {
+                                        <div class="col-sm-4">
+                                            <label class="form-label small mb-1">Page</label>
+                                            <select class="form-select form-select-sm" @bind="q.PageId" @bind:after="(() => OnPageChanged(index))">
+                                                <option value="">-- Select Page --</option>
+                                                @if (_pages != null)
+                                                {
+                                                    @foreach (var p in _pages)
+                                                    {
+                                                        <option value="@p.PageId">@p.Name (@p.Path)</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label small mb-1">Display Name</label>
+                                            <input class="form-control form-control-sm" @bind="q.Name" />
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <label class="form-label small mb-1">Url</label>
+                                            <input class="form-control form-control-sm" @bind="q.Url" disabled />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-sm-4">
+                                            <label class="form-label small mb-1">Display Name</label>
+                                            <input class="form-control form-control-sm" @bind="q.Name" />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label small mb-1">External Url</label>
+                                            <input class="form-control form-control-sm" @bind="q.Url" />
+                                        </div>
+                                    }
+
+                                    <div class="col-sm-2 d-flex gap-2 justify-content-end">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="(() => MoveLinkUp(index))" disabled="@(index==0)">
+                                            <span class="bi bi-arrow-up"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="(() => MoveLinkDown(index))" disabled="@(index==_vm.QuickLinks.Count-1)">
+                                            <span class="bi bi-arrow-down"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" @onclick="(() => RemoveLink(index))">
+                                            <span class="bi bi-trash"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="tab-pane fade" id="tags-tab" role="tabpanel">
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-success" @onclick="UpdateSettings">
+                        <span class="bi bi-save"></span> Save
+                    </button>
+                </div>
+
+                <div class="row g-2">
+                    @foreach (var tag in Huge.MovLit.Enums.StoryTags.GetAllTags)
+                    {
+                        var isChecked = _vm.PopularTags.Contains(tag);
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tag-@tag" checked="@isChecked" @onchange="(e => ToggleTag(tag, ((bool?)e.Value) == true))" />
+                                <label class="form-check-label" for="tag-@tag">@tag</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="blog-tab" role="tabpanel">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-sm-3">
+                        <label class="form-label small mb-1">From The Blog - Take</label>
+                        <input type="number" class="form-control form-control-sm" min="1" max="20" @bind="_vm.BlogTake" />
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-sm btn-success" @onclick="UpdateSettings">
+                            <span class="bi bi-save"></span> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="hero-tab" role="tabpanel">
+                <div class="row g-3 align-items-end">
+                    <div class="col-sm-4">
+                        <label class="form-label small mb-1">Featured Story Id</label>
+                        <input type="number" class="form-control form-control-sm" @bind="_vm.FeaturedStoryId" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="form-label small mb-1">Show Hero</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="show-hero2" @bind="_vm.ShowHero" />
+                            <label class="form-check-label" for="show-hero2">Enabled</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-sm btn-success" @onclick="UpdateSettings">
+                            <span class="bi bi-save"></span> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

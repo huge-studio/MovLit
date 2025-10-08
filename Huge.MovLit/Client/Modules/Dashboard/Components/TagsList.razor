@@ -1,0 +1,23 @@
+﻿@namespace Huge.Dashboard
+@using Huge.MovLit.Enums
+@using System.Linq
+@inherits Oqtane.Modules.ModuleBase
+
+<div class="mb-4">
+    <div class="fw-semibold text-uppercase small text-muted mb-2">Popular Tags</div>
+    <div class="row row-cols-2 g-2">
+        @foreach (var tag in _tags.Take(Count))
+        {
+            <div class="col">
+                <a class="link-body-secondary h5 d-inline-block" style="text-decoration:none;" href="#">@tag</a>
+            </div>
+        }
+        @if (ShowBrowseAllLink)
+        {
+            <div class="col-12">
+                <a class="disabled btn btn-primary btn-sm btn- d-flex align-items-center justify-content-center"><span>Browse all tags</span><span class="bi bi-arrow-right"></span></a>
+            </div>
+        }
+    </div>
+</div>
+

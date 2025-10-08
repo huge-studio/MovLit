@@ -15,10 +15,10 @@ namespace Huge.MovLit.Manager
 {
     public class MyModuleManager : MigratableModuleBase, IInstallable, IPortable, ISearchable
     {
-        private readonly IMyModuleRepository _MyModuleRepository;
+        private readonly MyModuleRepository _MyModuleRepository;
         private readonly IDBContextDependencies _DBContextDependencies;
 
-        public MyModuleManager(IMyModuleRepository MyModuleRepository, IDBContextDependencies DBContextDependencies)
+        public MyModuleManager(MyModuleRepository MyModuleRepository, IDBContextDependencies DBContextDependencies)
         {
             _MyModuleRepository = MyModuleRepository;
             _DBContextDependencies = DBContextDependencies;

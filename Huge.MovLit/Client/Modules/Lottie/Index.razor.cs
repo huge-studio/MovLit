@@ -7,7 +7,7 @@ using System;
 using System.ComponentModel;
 using System.Net;
 using System.Threading.Tasks;
-using Huge.MoveLit.Enums;
+using Huge.MovLit.Enums;
 
 namespace Huge.Lottie;
 

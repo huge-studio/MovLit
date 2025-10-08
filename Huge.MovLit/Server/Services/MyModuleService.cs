@@ -13,13 +13,13 @@ namespace Huge.MovLit.Services
 {
     public class ServerMyModuleService : IMyModuleService
     {
-        private readonly IMyModuleRepository _MyModuleRepository;
+        private readonly MyModuleRepository _MyModuleRepository;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
         private readonly IHttpContextAccessor _accessor;
         private readonly Alias _alias;
 
-        public ServerMyModuleService(IMyModuleRepository MyModuleRepository, IUserPermissions userPermissions, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
+        public ServerMyModuleService(MyModuleRepository MyModuleRepository, IUserPermissions userPermissions, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
         {
             _MyModuleRepository = MyModuleRepository;
             _userPermissions = userPermissions;

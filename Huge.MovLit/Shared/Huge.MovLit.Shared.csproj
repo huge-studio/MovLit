@@ -7,6 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<!-- Re-added BlogPost.cs to compilation -->
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Oqtane.Shared" Version="6.2.0" />
 	</ItemGroup>
 
