@@ -64,7 +64,7 @@ namespace Huge.MovLit.Repository
         {
             using var db = _factory.CreateDbContext();
 
-            List<Models.Story> stories =  await db.Story.AsNoTracking()
+            List<Models.Story> stories = await db.Story.AsNoTracking()
                 .OrderByDescending(s => s.UpvoteCount)
                 .ThenByDescending(s => s.CreatedOn)
                 .Take(take)
