@@ -14,10 +14,6 @@ namespace Huge.MovLit.Enums
 
         public static List<string> GetAllFilters => new() { Trending, New, Top };
         
-
-
         // We can eventually add more filters based on license, remix, etc.
-
-
     }
 }
