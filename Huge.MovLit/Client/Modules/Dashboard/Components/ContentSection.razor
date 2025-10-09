@@ -1,0 +1,154 @@
+﻿@namespace Huge.Dashboard
+@inherits ModuleBase
+
+@if (!Horizontal)
+{
+    <div class="d-flex align-items-center mb-2">
+        <h4 class="m-0 me-auto">@SectionTitle</h4>
+        <a class="btn btn-outline-primary btn-sm col-2 disabled" aria-disabled="true">@ActionText</a>
+    </div>
+
+    @if (_stories is null || _stories.Count == 0)
+    {
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 g-3 justify-content-center">
+            @for (int i = 0; i < Cards; i++)
+            {
+                <div class="col" style="width:275px;">
+                    <div class="card h-100 shadow-sm">
+                        <div class="ratio ratio-16x9 bg-secondary bg-opacity-10">
+                            <div class="placeholder w-100 h-100"></div>
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-9"></span>
+                            </div>
+                            <div class="mt-1 placeholder-glow">
+                                <span class="placeholder col-6 me-1"></span>
+                                <span class="placeholder col-3"></span>
+                            </div>
+                            <div class="small text-muted mt-2 placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                                <span class="placeholder col-8"></span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 placeholder-glow">
+                            <span class="badge rounded-pill text-bg-secondary placeholder col-4">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5 g-3 justify-content-center">
+            @foreach (var s in _stories)
+            {
+                MovLit.Models.StoryMetrics? m = null;
+                var hasMetrics = _metrics != null && _metrics.TryGetValue(s.StoryId, out m);
+                <div class="col" style="width:275px;cursor: pointer;" @onclick="() => NavigateToPage(s.PageId)">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative">
+                            <img class="card-img-top" src="@s.CoverArtUrl" alt="@s.Title" />
+                            @if (hasMetrics && m.ViewCount > 0)
+                            {
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-1 ms-1 m-1"><i class="bi bi-eye mx-1"></i>@m.ViewCount</span>
+                            }
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="fw-semibold text-truncate" title="@s.Title">@s.Title</div>
+                            <div class="small text-muted mt-1 text-truncate" title="@s.Description">@s.Description</div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 d-flex justify-content-between">
+                            <span class="badge rounded-pill bg-secondary">by @s.AuthorName</span>
+                            @if (hasMetrics && m.LikeCount > 0)
+                            {
+                                <span class="badge text-bg-secondary ms-1"><i class="bi bi-heart-fill" style="color:red;"></i> @m.LikeCount</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+else
+{
+    <div class="d-flex align-items-center mb-2">
+        <h5 class="m-0 me-auto">@SectionTitle</h5>
+        <a class="btn btn-outline-primary btn-sm col-2 disabled" aria-disabled="true">@ActionText</a>
+    </div>
+
+    @if (_stories is null || _stories.Count == 0)
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+            @for (int i = 0; i < Cards; i++)
+            {
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-4">
+                                <div class="ratio ratio-4x3 bg-secondary bg-opacity-10">
+                                    <div class="placeholder w-100 h-100"></div>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-2">
+                                    <div class="placeholder-glow mb-1">
+                                        <span class="placeholder col-8"></span>
+                                    </div>
+                                    <div class="small text-muted placeholder-glow mb-2">
+                                        <span class="placeholder col-12"></span>
+                                        <span class="placeholder col-10"></span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span class="badge text-bg-light placeholder col-3">&nbsp;</span>
+                                        <span class="badge text-bg-light placeholder col-2">&nbsp;</span>
+                                        <span class="badge text-bg-light placeholder col-4">&nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+            @foreach (var s in _stories)
+            {
+                MovLit.Models.StoryMetrics? m = null;
+                var hasMetrics = _metrics != null && _metrics.TryGetValue(s.StoryId, out m);
+                <div class="col" style="cursor: pointer;" @onclick="() => NavigateToPage(s.PageId)">
+                    <div class="card h-100">
+                        @if (hasMetrics && m.ViewCount > 0)
+                        {
+                            <span class="badge text-bg-light position-absolute top-0 end-0 m-1"><i class="bi bi-eye mx-1"></i>@m.ViewCount</span>
+                        }
+                        <div class="row g-0">
+                            <div class="col-4">
+                                <img src="@s.CoverArtUrl" class="img-fluid rounded-start h-100 object-fit-cover" alt="@s.Title" />
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-2">
+                                    <div class="fw-semibold text-truncate" title="@s.Title">@s.Title</div>
+                                    <div class="small text-muted text-truncate" title="@s.Description">@s.Description</div>
+                                    <div class="flex-grow-1"></div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="badge text-bg-light">by @s.AuthorName</span>
+                                        @if (hasMetrics && m.LikeCount > 0)
+                                        {
+                                            <span class="badge text-bg-secondary ms-1"><i class="bi bi-heart-fill" style="color:red;"></i> @m.LikeCount</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}

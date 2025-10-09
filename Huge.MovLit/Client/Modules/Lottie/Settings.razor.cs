@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
 using Oqtane.Modules;
 using Oqtane.Services;
-using Huge.MoveLit.Enums;
+using Huge.MovLit.Enums;
 
 
 namespace Huge.Lottie

@@ -1,0 +1,13 @@
+@namespace Huge.Dashboard
+@inherits Oqtane.Modules.ModuleBase
+@inject Oqtane.Services.ISettingService SettingService
+@inject NavigationManager Navigation
+
+<div class="d-none d-lg-flex flex-column flex-shrink-0 p-3 align-self-start sidebar" style="width:275px;">
+    <TagsList Count="8" ShowBrowseAllLink="true" />
+
+    <QuickLinks />
+
+    <FromBlog />
+
+</div>

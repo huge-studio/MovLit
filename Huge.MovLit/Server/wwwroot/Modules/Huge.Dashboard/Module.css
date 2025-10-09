@@ -1,0 +1,35 @@
+﻿/* Blur the backdrop on mobile when open */
+.offcanvas-backdrop.show {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0,0,0,.2);
+}
+
+/* Make it a real fixed-width sidebar at lg+ */
+@media (min-width: 992px) {
+    #sidebar.offcanvas-lg {
+        position: static;
+        visibility: visible !important;
+        transform: none;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+    }
+
+    .position-lg-sticky {
+        position: sticky;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 884.98px) {
+    .main-container {
+        margin-top: 50px;
+    }
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        position: sticky;
+        top: 125px; 
+        height: auto; 
+        overflow: auto; 
+    }
+}

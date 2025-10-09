@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Huge.MoveLit.Enums
+namespace Huge.MovLit.Enums
 {
     public class NotifyPropertyName
     {
