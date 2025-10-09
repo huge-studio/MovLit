@@ -37,14 +37,6 @@ namespace Huge.MovLit.Repository
             return story;
         }
 
-        public async Task<Models.Story> UpdateStory(Models.Story story)
-        {
-            using var db = _factory.CreateDbContext();
-            db.Entry(story).State = EntityState.Modified;
-            await db.SaveChangesAsync();
-            return story;
-        }
-
         public async Task DeleteStoryAsync(int StoryId)
         {
             using var db = _factory.CreateDbContext();
