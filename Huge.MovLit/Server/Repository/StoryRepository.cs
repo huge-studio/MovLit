@@ -52,7 +52,7 @@ namespace Huge.MovLit.Repository
             if (entity != null)
             {
                 db.Story.Remove(entity);
-               await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
             }
         }
 
