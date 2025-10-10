@@ -42,8 +42,9 @@ public partial class Index : ModuleBase, IDisposable
 
     protected InkRun.Story _story;
     private bool disposedValue;
-    private string settingsUrl;
-    private string returnUrl;
+    private string _settingsUrl;
+    private string _returnUrl;
+    private string _editUrl;
 
     protected override void OnInitialized()
     {
@@ -60,8 +61,10 @@ public partial class Index : ModuleBase, IDisposable
         var moduleSettings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
         _settingsVM = new SettingsViewModel(SettingService, moduleSettings);
 
-        returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
-        settingsUrl = EditUrl("Settings", $"returnurl={returnUrl}&tab=ModuleSettings");
+        _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
+        _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
+        _editUrl = EditUrl("Edit");
+
 
         CompileStory();
 
