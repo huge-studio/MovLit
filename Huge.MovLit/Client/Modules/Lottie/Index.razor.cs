@@ -1,0 +1,128 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using Oqtane.Modules;
+using Oqtane.Services;
+using Oqtane.Shared;
+using System;
+using System.ComponentModel;
+using System.Net;
+using System.Threading.Tasks;
+using Huge.MovLit.Enums;
+
+namespace Huge.Lottie;
+
+public partial class Index : ModuleBase, IDisposable
+{
+    [Inject] public ISettingService SettingService { get; set; }
+
+    bool loading = true;
+
+    private string _lottieSource = string.Empty;
+    private string _imageSource = string.Empty;
+
+    private string _returnUrl;
+    private string _settingsUrl;
+
+    ElementReference _lottieElem;
+    private bool _needsPlay;
+
+    protected override void OnInitialized()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!ShouldRender() || !loading) return;
+
+        try
+        {
+            _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
+            _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
+
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            var vm = new SettingsViewModel(SettingService, settings);
+
+            _lottieSource = vm.LottieSource;
+            _imageSource = vm.ImgSource;
+
+            PublishInitialToSiteState();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            if (!PageState.EditMode)
+            {
+                AddModuleMessage("Error Loading Content", MessageType.Error);
+            }
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    // Seed SiteState with initial media so ProcessTags can restore on "Previous"
+    private void PublishInitialToSiteState()
+    {
+        if (PageState.EditMode)
+        {
+            return;
+        }
+        // If there is already a published source to sitestate do nothing
+        if (!string.IsNullOrWhiteSpace(SiteState.Properties.Lottie) || !string.IsNullOrWhiteSpace(SiteState.Properties.Image))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_lottieSource))
+        {
+            SiteState.Properties.Lottie = _lottieSource;
+            _needsPlay = true;
+        }
+        else if (!string.IsNullOrWhiteSpace(_imageSource))
+        {
+            SiteState.Properties.Image = _imageSource;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_needsPlay && !string.IsNullOrWhiteSpace(_lottieSource))
+        {
+            _needsPlay = false;
+            await JSRuntime.InvokeVoidAsync("playWhenReady", _lottieElem);
+        }
+    }
+
+    public void Dispose()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+    }
+
+    void PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == NotifyPropertyName.Lottie)
+        {
+            var src = (string)SiteState.Properties[NotifyPropertyName.Lottie];
+            if (!PageState.EditMode && !string.IsNullOrWhiteSpace(src))
+            {
+                _lottieSource = src;
+                _imageSource = string.Empty;
+                _needsPlay = true;
+                StateHasChanged();
+            }
+        }
+        if (e.PropertyName == NotifyPropertyName.Image)
+        {
+            var src = (string)SiteState.Properties[NotifyPropertyName.Image];
+            if (!PageState.EditMode && !string.IsNullOrWhiteSpace(src))
+            {
+                _imageSource = src;
+                _lottieSource = string.Empty;
+                StateHasChanged();
+            }
+        }
+    }
+}
+

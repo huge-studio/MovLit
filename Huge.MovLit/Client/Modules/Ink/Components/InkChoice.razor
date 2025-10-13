@@ -1,0 +1,90 @@
+﻿@using Huge.MovLit.Models;
+
+@namespace Huge.Ink
+
+@inherits ModuleControlBase
+
+@inject NavigationManager NavigationManager
+
+@switch (choiceType)
+{
+    default:
+    case ChoiceType.Button:
+        {
+            <button class="btn btn-primary btn-md" @onclick="ChoiceSelected">@Choice.Text</button>
+            break;
+        }
+    case ChoiceType.ImageButton:
+        {
+            // Handle choices defined like this: "+ [#Image=someimage.png]"
+            var imageSource = GetTagValueByName(InkTag.Image) ?? string.Empty;
+            <button class="btn btn-outline-secondary choice-card image-button" @onclick="ChoiceSelected">
+                <img src="@imageSource" class="img-fluid" />
+            </button>
+            break;
+        }
+}
+
+@code {
+    [Parameter]
+    public CustomInkChoice Choice { get; set; }
+
+    [Parameter]
+    public EventCallback<CustomInkChoice> OnSelected { get; set; }
+
+    enum ChoiceType
+    {
+        Button,
+        ImageButton
+    }
+
+    ChoiceType choiceType = ChoiceType.Button;
+
+    protected override void OnParametersSet()
+    {
+        choiceType = ChoiceType.Button;
+
+        if (Choice?.Tags != null)
+        {
+            var choiceTypeValue = GetTagValueByName(InkTag.Image);
+            if (!string.IsNullOrEmpty(choiceTypeValue))
+            {
+                choiceType = ChoiceType.ImageButton;
+            }
+        }
+    }
+
+    protected void ChoiceSelected()
+    {
+        if (HasTag(InkTag.ProgressComplete))
+        {
+            var progressPage = GetTagValueByName(InkTag.ProgressComplete) ?? PageState.Page.Name;
+            SiteState.Properties.ProgressUpdate = progressPage;
+        }
+        var url = GetTagValueByName(InkTag.Href);
+        if (!string.IsNullOrEmpty(url))
+        {
+            NavigationManager.NavigateTo(url);
+        }
+        OnSelected.InvokeAsync(Choice);
+    }
+
+    protected bool HasTag(string tagName)
+    {
+        if (Choice?.Tags == null || string.IsNullOrEmpty(tagName))
+            return false;
+        return Choice.Tags.Exists(t => t.StartsWith(tagName, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    protected string GetTag(string tagName)
+    {
+        if (Choice?.Tags == null || string.IsNullOrEmpty(tagName))
+            return null;
+        return Choice.Tags.FirstOrDefault(t => t.StartsWith(tagName, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    protected string GetTagValueByName(string tagName)
+    {
+        return GetTag(tagName)?.Substring(tagName.Length);
+    }
+}

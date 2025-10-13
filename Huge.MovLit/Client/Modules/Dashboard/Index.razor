@@ -1,0 +1,43 @@
+@namespace Huge.Dashboard
+@inherits ModuleBase
+
+@if (PageState.EditMode)
+{
+    <div class="card m-2" style="position:relative;">
+        <div class="card-body d-flex flex-column flex-sm-row align-items-start gap-2">
+            <h6 class="card-title text-primary m-0 me-auto">Dashboard Module</h6>
+            <a class="btn btn-primary" href="@_settingsUrl">
+                <span class="bi bi-gear"></span> Settings
+            </a>
+        </div>
+    </div>
+}
+else if (!_loading)
+{
+    <div class="container-fluid py-3 main-container">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <Sidebar />
+
+            <!-- Main content -->
+            <div class="col-12 col-lg-8">
+                @if (ShowHero)
+                {
+                    <Hero />
+                }
+
+                @if (Sections?.Count > 0)
+                {
+                    @foreach (var s in Sections)
+                    {
+                        if (Sections.IndexOf(s) != 0)
+                        {
+                            <hr class="my-5" />
+                        }
+                        <ContentSection SectionTitle="@s.Title" ActionText="@s.ActionText" Cards="@s.Cards" Horizontal="@s.Horizontal" />
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

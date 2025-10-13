@@ -5,17 +5,7 @@ using Oqtane.Modules;
 
 namespace Huge.MovLit.Repository
 {
-    public interface IMyModuleRepository
-    {
-        IEnumerable<Models.MyModule> GetMyModules(int ModuleId);
-        Models.MyModule GetMyModule(int MyModuleId);
-        Models.MyModule GetMyModule(int MyModuleId, bool tracking);
-        Models.MyModule AddMyModule(Models.MyModule MyModule);
-        Models.MyModule UpdateMyModule(Models.MyModule MyModule);
-        void DeleteMyModule(int MyModuleId);
-    }
-
-    public class MyModuleRepository : IMyModuleRepository, ITransientService
+    public partial class MyModuleRepository : ITransientService
     {
         private readonly IDbContextFactory<Context> _factory;
 

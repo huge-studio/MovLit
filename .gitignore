@@ -417,10 +417,11 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-Huge.MovLit/Server/Content/
+Huge.MovLit/Server/wwwroot/Themes/
+
+Huge.MovLit/Server/Content/Tenants/
+
+Huge.MovLit/Server/wwwroot/Content/Tenants/
 
 Huge.MovLit/Server/.config/
-
-Huge.MovLit/Server/wwwroot/Content/
-
-Huge.MovLit/Server/wwwroot/Themes/
+/Huge.MovLit/Server/appsettings.json
