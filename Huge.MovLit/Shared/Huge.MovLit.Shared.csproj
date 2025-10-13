@@ -4,6 +4,8 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Version>1.0.0</Version>
 		<AssemblyName>Huge.MovLit.Shared.Oqtane</AssemblyName>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -11,7 +13,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Oqtane.Shared" Version="6.2.0" />
+		<PackageReference Include="Oqtane.Shared" Version="6.2.1" />
+		<!-- Fundamental Blazor packages -->
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.9" />
 	</ItemGroup>
 
 </Project>
