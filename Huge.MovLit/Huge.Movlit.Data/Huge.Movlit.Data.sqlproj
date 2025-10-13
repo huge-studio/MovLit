@@ -106,4 +106,7 @@
     <Build Include="dbo\Tables\StoryLike.sql" />
     <Build Include="dbo\Tables\Story.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SqlSchemaCompare1.scmp" />
+  </ItemGroup>
 </Project>
