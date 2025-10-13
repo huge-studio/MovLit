@@ -422,3 +422,6 @@ Huge.MovLit/Server/wwwroot/Themes/
 Huge.MovLit/Server/Content/Tenants/
 
 Huge.MovLit/Server/wwwroot/Content/Tenants/
+
+Huge.MovLit/Server/.config/
+/Huge.MovLit/Server/appsettings.json
