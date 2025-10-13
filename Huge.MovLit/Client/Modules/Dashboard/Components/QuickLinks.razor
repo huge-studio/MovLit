@@ -1,0 +1,21 @@
+@namespace Huge.Dashboard
+@inherits ModuleBase
+
+<div class="mb-4">
+    <div class="fw-semibold text-uppercase small text-muted mb-2">Quick Links</div>
+    @if (_links?.Count > 0)
+    {
+        <div class="row row-cols-2 g-2">
+            @foreach (var l in _links)
+            {
+                <div class="col">
+                    <a class="link-body-secondary h5 d-inline-block" style="text-decoration:none;cursor:pointer;"  @onclick="(() => Navigate(l))">@l.Name</a>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-muted small">No links</div>
+    }
+</div>

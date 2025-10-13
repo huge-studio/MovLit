@@ -7,12 +7,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="wwwroot\Modules\Huge.Dashboard\Module.css" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Client\Huge.MovLit.Client.csproj" />
 		<ProjectReference Include="..\Shared\Huge.MovLit.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Oqtane.Server" Version="6.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\Modules\Huge.Dashboard\Module.css" />
 	</ItemGroup>
 	
 </Project>

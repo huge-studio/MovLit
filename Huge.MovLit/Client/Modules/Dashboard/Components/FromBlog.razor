@@ -1,0 +1,21 @@
+@namespace Huge.Dashboard
+@inherits Oqtane.Modules.ModuleBase
+
+<div class="mb-4">
+    <div class="fw-semibold text-uppercase small text-muted mb-2">From the Blog</div>
+    @if (_posts?.Count > 0)
+    {
+        <ul class="list-unstyled small mb-0">
+            @foreach (var p in _posts)
+            {
+                <li class="mb-2 d-flex justify-content-between">
+                    <a class="text-truncate d-inline-block" style="text-decoration:none;cursor:pointer;" @onclick="(() => Navigate(p))" title="@p.Title">@p.Title</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="text-muted small">No posts</div>
+    }
+</div>

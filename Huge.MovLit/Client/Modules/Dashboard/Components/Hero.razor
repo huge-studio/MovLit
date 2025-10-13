@@ -1,0 +1,54 @@
+@namespace Huge.Dashboard
+@inherits ModuleBase
+
+@if (_loading)
+{
+    <div class="hero-panel rounded-4 border shadow-sm p-3 p-lg-4 mb-4 position-relative">
+        <span class="badge text-bg-light position-absolute top-0 start-0 m-2">Featured:</span>
+        <div class="row flex-lg-row-reverse align-items-center g-4">
+            <div class="col-10 col-sm-8 col-lg-6">
+                <div class="ratio ratio-4x3 bg-secondary bg-opacity-10 rounded-4 border border-secondary-subtle">
+                    <div class="placeholder w-100 h-100"></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="placeholder-glow mb-3">
+                    <span class="placeholder col-9 d-block" style="height:2.5rem;"></span>
+                    <span class="placeholder col-6 d-block" style="height:2.5rem;"></span>
+                </div>
+                <div class="placeholder-glow mb-4">
+                    <span class="placeholder col-12 d-block"></span>
+                    <span class="placeholder col-11 d-block"></span>
+                    <span class="placeholder col-9 d-block"></span>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <span class="btn btn-primary disabled placeholder col-3">&nbsp;</span>
+                    <span class="btn btn-outline-secondary disabled placeholder col-3">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (_story != null)
+{
+    <div class="hero-panel rounded-4 border shadow-sm p-3 p-lg-4 mb-4 position-relative">
+        <h3><span class="badge text-bg-light position-absolute top-0 start-0 m-2">Featured:</span></h3>
+        <div class="row flex-lg-row-reverse align-items-center g-4">
+            <div class="col-12 col-sm-6 col-lg-6 d-flex justify-content-center">
+                <img src="@_story.CoverArtUrl" class="d-block mx-lg-auto img-fluid rounded-4 border border-secondary-subtle" alt="@_story.Title" loading="lazy">
+            </div>
+            <div class="col-12 col-sm-6 col-lg-6 d-lg-flex flex-lg-column justify-content-lg-center text-lg-center">
+                <h1 class="display-5 fw-bold lh-1 mb-3">@_story.Title</h1>
+                <p class="lead mb-3">@_story.Description</p>
+                <div class="d-flex align-items-center mb-4 justify-content-lg-center">
+                    <span class="badge text-bg-light">by @_story.AuthorName</span>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start justify-content-lg-center">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2" @onclick="NavigateToFeatured">Launch</button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" disabled>Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-5" />
+}

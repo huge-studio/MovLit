@@ -22,6 +22,7 @@ namespace Huge.MovLit.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IMyModuleService, ServerMyModuleService>();
+            services.AddTransient<ServerStoryService>();
             services.AddDbContextFactory<Context>(opt => { }, ServiceLifetime.Transient);
         }
     }

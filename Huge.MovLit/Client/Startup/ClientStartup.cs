@@ -13,6 +13,11 @@ namespace Huge.MovLit.Startup
             {
                 services.AddScoped<IMyModuleService, MyModuleService>();
             }
+
+            if (!services.Any(s => s.ServiceType == typeof(StoryService)))
+            {
+                services.AddTransient<StoryService>();
+            }
         }
     }
 }
