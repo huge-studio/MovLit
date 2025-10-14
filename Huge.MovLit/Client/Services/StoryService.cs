@@ -104,9 +104,9 @@ namespace Huge.MovLit.Services
             return (data, response.StatusCode);
         }
 
-        public async Task<HttpStatusCode> AddViewOnceAsync(int ModuleId, Models.StoryView view)
+        public async Task<HttpStatusCode> AddView(int ModuleId, Models.StoryView view)
         {
-            var url = CreateAuthorizationPolicyUrl($"{Apiurl}/view-once?moduleid={ModuleId}", EntityNames.Module, ModuleId);
+            var url = CreateAuthorizationPolicyUrl($"{Apiurl}/view?moduleid={ModuleId}", EntityNames.Module, ModuleId);
             (var data, var response) = await PostJsonWithResponseAsync(url, view);
             return response.StatusCode;
         }

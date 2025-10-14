@@ -198,7 +198,7 @@ namespace Huge.MovLit.Controllers
 
 
         // POST api/<controller>/view-once
-        [HttpPost("view-once")]
+        [HttpPost("view")]
         [Authorize(Policy = PolicyNames.ViewModule)]
         public async Task<IActionResult> AddViewOnce([FromQuery] int moduleid, [FromBody] Models.StoryView view)
         {

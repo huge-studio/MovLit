@@ -53,8 +53,10 @@ namespace Huge.Ink
             try
             {
                 ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+
                 _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
                 _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
+
                 await EnsureStoryLoadedAsync();
             }
             catch (Exception ex)
@@ -142,7 +144,9 @@ namespace Huge.Ink
             try
             {
                 if (_storyLoaded && _storyEntity != null) return;
+
                 (_storyEntity, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+
                 if (_storyEntity is null || code == HttpStatusCode.NotFound)
                 {
                     // Create the starter story on first visit
@@ -195,7 +199,7 @@ namespace Huge.Ink
                 VisitorId = PageState.VisitorId > 0 ? PageState.VisitorId : null,
                 UserId = (PageState.User?.UserId ?? 0) > 0 ? PageState.User.UserId : null,
             };
-            await StoryService.AddViewOnceAsync(ModuleState.ModuleId, view);
+            await StoryService.AddView(ModuleState.ModuleId, view);
             _viewSent = true;
         }
 
