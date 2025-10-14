@@ -5,69 +5,80 @@
 
 @inherits ModuleBase
 
-<div class="container py-3">
-    <div class="row mb-3">
-        <div class="col">
-            <!-- Add story name? -->
-            <h5 class="m-0">Edit Story</h5>
-            <!-- Author name? -->
-            <div class="text-muted small">Module @ModuleState.ModuleId</div>
-        </div>
+@if (_story is null)
+{
+    <div class="alert alert-info">
+        No story exists for this module. Visit the Ink module once to create the starter story, then return here to edit.
     </div>
-
-    <div class="row mb-2 align-items-center">
-        <Label For="title" HelpText="Enter a title for your story." Class="col-sm-3">Title</Label>
-        <div class="col-sm-9">
-            <input id="title" class="form-control" placeholder="Enter title" @bind="_title" />
-        </div>
+    <div class="mt-2">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Close</button>
     </div>
-
-    <div class="row mb-2 align-items-center">
-        <Label For="desc" HelpText="Enter a short description for your story." Class="col-sm-3">Description</Label>
-        <div class="col-sm-9">
-            <textarea id="desc" rows="3" class="form-control" placeholder="Short description" @bind="_description"></textarea>
+}
+else
+{
+    <div class="container py-3">
+        <div class="row mb-3">
+            <div class="col">
+                <!-- Add story name? -->
+                <h5 class="m-0">Edit @_story.Title</h5>
+                <!-- Author name? -->
+                <div class="text-muted small">by @_story.AuthorName</div>
+            </div>
         </div>
-    </div>
-
-    <div class="row mb-2 align-items-center">
-        <Label For="coverart" HelpText="Upload cover art for your story." Class="col-sm-3">Cover Art</Label>
-        <div class="col-sm-9">
-            <input id="coverart" class="form-control mb-2" placeholder="/files/cover.jpg" value="@_coverArtUrl" disabled />
-            <FileManager OnSelectFile="(fileId) => OnCoverSelected(fileId)" />
-            @if (!string.IsNullOrWhiteSpace(_coverArtUrl))
-            {
-                <div class="form-text">Selected: @_coverArtUrl</div>
-            }
+        <div class="row mb-2 align-items-center">
+            <Label For="title" HelpText="Enter a title for your story." Class="col-sm-3">Title</Label>
+            <div class="col-sm-9">
+                <input id="title" class="form-control" placeholder="Enter title" @bind="_story.Title" />
+            </div>
         </div>
-    </div>
 
-    <div class="row mb-2 align-items-center">
-        <Label For="tags" HelpText="Tag your story with common genres. Hold ctrl/cmd for multi-select." Class="col-sm-3">Tags</Label>
-        <div class="col-sm-9">
-            <select id="tags" multiple class="form-select" @onchange="OnTagsChanged">
-                @foreach (var t in _allTags)
+        <div class="row mb-2 align-items-center">
+            <Label For="desc" HelpText="Enter a short description for your story." Class="col-sm-3">Description</Label>
+            <div class="col-sm-9">
+                <textarea id="desc" rows="3" class="form-control" placeholder="Short description" @bind="_story.Description"></textarea>
+            </div>
+        </div>
+
+        <div class="row mb-2 align-items-center">
+            <Label For="coverart" HelpText="Upload cover art for your story." Class="col-sm-3">Cover Art</Label>
+            <div class="col-sm-9">
+                <input id="coverart" class="form-control mb-2" placeholder="/files/cover.jpg" value="@_story.CoverArtUrl" disabled />
+                <FileManager OnSelectFile="(fileId) => OnCoverSelected(fileId)" />
+                @if (!string.IsNullOrWhiteSpace(_story.CoverArtUrl))
                 {
-                    <option value="@t" selected="@_selectedTags.Contains(t)">@t</option>
+                    <div class="form-text">Selected: @_story.CoverArtUrl</div>
                 }
-            </select>
-            <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
+            </div>
+        </div>
+
+        <div class="row mb-2 align-items-center">
+            <Label For="tags" HelpText="Tag your story with common genres. Hold Ctrl/Cmd to select multiple." Class="col-sm-3">Tags</Label>
+            <div class="col-sm-9">
+                <select id="tags" multiple class="form-select" @onchange="OnTagsChanged">
+                    @foreach (var t in _allTags)
+                    {
+                        <option value="@t" selected="@(_story?.Tags?.Contains(t) == true)">@t</option>
+                    }
+                </select>
+                <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="row mb-2 align-items-center">
+            <Label For="ink" Class="col-sm-3">Ink</Label>
+            <div class="col-sm-9">
+                <textarea id="ink" rows="10" class="form-control" placeholder="// Ink content here" @bind="_story.InkJson"></textarea>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">@($"Ink error: [{_errorMessage}]")</div>
+        }
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-success" @onclick="Save">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
         </div>
     </div>
-
-    <hr />
-
-    <div class="row mb-2 align-items-center">
-        <Label For="ink" Class="col-sm-3">Ink</Label>
-        <div class="col-sm-9">
-            <textarea id="ink" rows="10" class="form-control" placeholder="// Ink content here" @bind="_inkJson"></textarea>
-        </div>
-    </div>
-    @if (!string.IsNullOrEmpty(_errorMessage))
-    {
-        <div class="alert alert-danger">@($"Ink error: [{_errorMessage}]")</div>
-    }
-    <div class="d-flex gap-2 mt-3">
-        <button type="button" class="btn btn-success" @onclick="Save">Save</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-    </div>
-</div>
+}

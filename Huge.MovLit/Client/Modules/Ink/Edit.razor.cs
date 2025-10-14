@@ -11,6 +11,7 @@ using Oqtane.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Huge.Ink
 {
@@ -41,14 +42,10 @@ namespace Huge.Ink
         private DateTime _modifiedon;
 
         // Form state
-        private string _title;
-        private string _description;
-        private string _coverArtUrl;
-        private string _inkJson;
+        // replaced by direct binding to _story
         private string _returnUrl;
         private string _errorMessage;
 
-        private List<string> _selectedTags = new();
         private readonly List<string> _allTags = StoryTags.GetAllTags;
 
 
@@ -60,22 +57,6 @@ namespace Huge.Ink
 
             // Load existing story for this module (if any)
             (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
-
-            // hydrate form
-            if (_story != null)
-            {
-                _title = _story.Title;
-                _description = _story.Description;
-                _coverArtUrl = _story.CoverArtUrl;
-                _inkJson = _story.InkJson;
-            }
-            else
-            {
-                _title = string.Empty;
-                _description = string.Empty;
-                _coverArtUrl = string.Empty;
-                _inkJson = string.Empty;
-            }
         }
 
         private async Task OnCoverSelected(int fileId)
@@ -83,18 +64,43 @@ namespace Huge.Ink
             try
             {
                 var file = await FileService.GetFileAsync(fileId);
-                _coverArtUrl = file?.Url;
+                if (_story != null)
+                {
+                    _story.CoverArtUrl = file?.Url;
+                }
             }
             catch
             {
-                _coverArtUrl = $"/Files/{fileId}";
+                if (_story != null)
+                {
+                    _story.CoverArtUrl = $"/Files/{fileId}";
+                }
             }
         }
 
         private void OnTagsChanged(ChangeEventArgs e)
         {
-            // Handle multi-select: collect selected <option> values
-            // In real binding, we'd parse from e.Value; here keep existing selection
+            if (_story == null) return;
+
+            var tags = e?.Value as string[];
+
+            if (tags != null && tags.Length > 0)
+            {
+                _story.Tags ??= new List<string>();
+                _story.Tags.RemoveAll(tag => !tags.Contains(tag));
+                foreach (var tag in tags)
+                {
+                    if (!_story.Tags.Contains(tag) && _allTags.Contains(tag))
+                    {
+                        _story.Tags.Add(tag);
+                    }
+                }
+            }
+            else
+            {
+                _story.Tags = new List<string>();
+                return;
+            }
         }
 
         private async Task Save()
@@ -106,13 +112,7 @@ namespace Huge.Ink
                     AddModuleMessage("No story exists for this module. Visit the Ink module once to create the starter story, then return to edit.", MessageType.Warning);
                     return;
                 }
-                // Map form to entity
-                _story.Title = _title;
-                _story.Description = _description;
-                _story.CoverArtUrl = _coverArtUrl;
-                _story.InkJson = _inkJson;
-
-                if (!string.IsNullOrWhiteSpace(_inkJson))
+                if (!string.IsNullOrWhiteSpace(_story.InkJson))
                 {
                     if (!CanCompileStory())
                     {
@@ -154,9 +154,9 @@ namespace Huge.Ink
             {
                 // add headers to the ink
                 var headers = InkFunctions.GetHeaders();
-                var ink = $"{headers}\n\n{_inkJson}";
+                var ink = $"{headers}\n\n{_story?.InkJson}";
 
-                if (ink == string.Empty)
+                if (string.IsNullOrWhiteSpace(_story?.InkJson))
                 {
                     _errorMessage = "Compilation failed: No story generated.";
                     StateHasChanged();
