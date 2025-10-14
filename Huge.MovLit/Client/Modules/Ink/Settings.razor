@@ -20,24 +20,18 @@
 }
 else
 {
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <label class="form-label col-sm-3" for="ink-input">Ink: </label>
-            <div class="col-sm-9">
-                <textarea id="ink-input" class="form-control" @bind="@_settingsVM.Ink" @onfocusout="@CompileStory" rows="6" />
-            </div>
+    <div class="row mb-1 align-items-center">
+        <label class="form-label col-sm-3" for="image-base">Continue Button Text: </label>
+        <div class="col-sm-9">
+            <input id="image-base" type="text" class="form-control" @bind="@_settingsVM.ContinueText" />
         </div>
+    </div>
 
-        @if (!string.IsNullOrEmpty(_errorMessage))
-        {
-            <div class="alert alert-danger">@($"Ink error: [{_errorMessage}]")</div>
-        }
-
-        <div class="row mb-1 align-items-center">
-            <label class="form-label col-sm-3" for="image-base">Continue Button Text: </label>
-            <div class="col-sm-9">
-                <input id="image-base" type="text" class="form-control" @bind="@_settingsVM.ContinueText" />
-            </div>
+    <div class="row mb-1 align-items-center">
+        <label class="form-label col-sm-3" for="use-prev">Use Previous</label>
+        <div class="col-sm-9 d-flex align-items-center">
+            <input id="use-prev" type="checkbox" class="form-check-input me-2" @bind="@_settingsVM.HasPrevious" />
+            <span class="text-muted small">Enable Previous button in the Ink UI</span>
         </div>
     </div>
 }

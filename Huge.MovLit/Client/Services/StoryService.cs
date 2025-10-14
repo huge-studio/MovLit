@@ -30,6 +30,14 @@ namespace Huge.MovLit.Services
             return (data, response.StatusCode);
         }
 
+        // Get the story for a module (if any)
+        public async Task<(Models.Story, HttpStatusCode)> GetForModuleAsync(int ModuleId)
+        {
+            var url = CreateAuthorizationPolicyUrl($"{Apiurl}/module?moduleid={ModuleId}", EntityNames.Module, ModuleId);
+            (var data, var response) = await GetJsonWithResponseAsync<Models.Story>(url);
+            return (data, response.StatusCode);
+        }
+
         public async Task<(List<Models.Story>, HttpStatusCode)> GetTopAllTimeAsync(int ModuleId, int take)
         {
             var url = CreateAuthorizationPolicyUrl($"{Apiurl}?moduleid={ModuleId}&filter={DashboardFilters.Top}&take={take}", EntityNames.Module, ModuleId);
@@ -93,6 +101,20 @@ namespace Huge.MovLit.Services
         {
             var url = CreateAuthorizationPolicyUrl($"{Apiurl}/blog?moduleid={ModuleId}&take={take}", EntityNames.Module, ModuleId);
             (var data, var response) = await GetJsonWithResponseAsync<List<Models.BlogPost>>(url);
+            return (data, response.StatusCode);
+        }
+
+        public async Task<HttpStatusCode> AddViewOnceAsync(int ModuleId, Models.StoryView view)
+        {
+            var url = CreateAuthorizationPolicyUrl($"{Apiurl}/view-once?moduleid={ModuleId}", EntityNames.Module, ModuleId);
+            (var data, var response) = await PostJsonWithResponseAsync(url, view);
+            return response.StatusCode;
+        }
+
+        public async Task<(Models.StoryLike, HttpStatusCode)> ToggleLikeAsync(int ModuleId, Models.StoryLike like)
+        {
+            var url = CreateAuthorizationPolicyUrl($"{Apiurl}/toggle-like?moduleid={ModuleId}", EntityNames.Module, ModuleId);
+            (var data, var response) = await PostJsonWithResponseAsync(url, like);
             return (data, response.StatusCode);
         }
     }

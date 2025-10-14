@@ -27,6 +27,33 @@ namespace Huge.MovLit.Controllers
             _service = service;
         }
 
+        // GET: api/<controller>/module?moduleid=x
+        [HttpGet("module")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
+        public async Task<ActionResult<Models.Story>> GetForModule([FromQuery] int moduleid)
+        {
+            try
+            {
+                if (!IsAuthorizedEntityId(EntityNames.Module, moduleid))
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Story GetByModule Attempt {ModuleId}", moduleid);
+                    return Forbid();
+                }
+
+                var story = await _repo.GetStoryByModuleAsync(moduleid);
+                if (story == null)
+                {
+                    return NotFound();
+                }
+                return Ok(story);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Error retrieving story for module {ModuleId}: {Message}", moduleid, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving story for module");
+            }
+        }
+
         // GET: api/<controller>?moduleid=x&filter=y&take=z
         [HttpGet]
         [Authorize(Policy = PolicyNames.ViewModule)]
@@ -167,6 +194,32 @@ namespace Huge.MovLit.Controllers
             }
 
             return await _repo.GetRecentBlogPosts(take);
+        }
+
+
+        // POST api/<controller>/view-once
+        [HttpPost("view-once")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
+        public async Task<IActionResult> AddViewOnce([FromQuery] int moduleid, [FromBody] Models.StoryView view)
+        {
+            if (!IsAuthorizedEntityId(EntityNames.Module, moduleid)) return Forbid();
+            if (view == null || view.StoryId <= 0 || (!view.VisitorId.HasValue && !view.UserId.HasValue)) return BadRequest();
+
+            // Record a view for each component initialization. Do not de-duplicate by user/visitor here.
+            await _repo.AddStoryViewAsync(view);
+            return Ok();
+        }
+
+        // POST api/<controller>/toggle-like
+        [HttpPost("toggle-like")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
+        public async Task<ActionResult<Models.StoryLike>> ToggleLike([FromQuery] int moduleid, [FromBody] Models.StoryLike like)
+        {
+            if (!IsAuthorizedEntityId(EntityNames.Module, moduleid)) return Forbid();
+            if (like == null || like.StoryId <= 0 || (!like.VisitorId.HasValue && !like.UserId.HasValue)) return BadRequest();
+
+            var result = await _repo.ToggleStoryLikeAsync(like);
+            return Ok(result);
         }
     }
 }

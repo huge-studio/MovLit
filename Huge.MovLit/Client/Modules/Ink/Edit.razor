@@ -8,34 +8,29 @@
 <div class="container py-3">
     <div class="row mb-3">
         <div class="col">
+            <!-- Add story name? -->
             <h5 class="m-0">Edit Story</h5>
+            <!-- Author name? -->
             <div class="text-muted small">Module @ModuleState.ModuleId</div>
         </div>
     </div>
 
     <div class="row mb-2 align-items-center">
-        <Label For="title" Class="col-sm-3">Title</Label>
+        <Label For="title" HelpText="Enter a title for your story." Class="col-sm-3">Title</Label>
         <div class="col-sm-9">
-            <input id="title" class="form-control" placeholder="Enter title" />
+            <input id="title" class="form-control" placeholder="Enter title" @bind="_title" />
         </div>
     </div>
 
     <div class="row mb-2 align-items-center">
-        <Label For="author" Class="col-sm-3">Author</Label>
+        <Label For="desc" HelpText="Enter a short description for your story." Class="col-sm-3">Description</Label>
         <div class="col-sm-9">
-            <input id="author" class="form-control" placeholder="Enter author" />
+            <textarea id="desc" rows="3" class="form-control" placeholder="Short description" @bind="_description"></textarea>
         </div>
     </div>
 
     <div class="row mb-2 align-items-center">
-        <Label For="desc" Class="col-sm-3">Description</Label>
-        <div class="col-sm-9">
-            <textarea id="desc" rows="3" class="form-control" placeholder="Short description"></textarea>
-        </div>
-    </div>
-
-    <div class="row mb-2 align-items-center">
-        <Label For="coverart" Class="col-sm-3">Cover Art</Label>
+        <Label For="coverart" HelpText="Upload cover art for your story." Class="col-sm-3">Cover Art</Label>
         <div class="col-sm-9">
             <input id="coverart" class="form-control mb-2" placeholder="/files/cover.jpg" value="@_coverArtUrl" disabled />
             <FileManager OnSelectFile="(fileId) => OnCoverSelected(fileId)" />
@@ -47,7 +42,7 @@
     </div>
 
     <div class="row mb-2 align-items-center">
-        <Label For="tags" Class="col-sm-3">Tags</Label>
+        <Label For="tags" HelpText="Tag your story with common genres. Hold ctrl/cmd for multi-select." Class="col-sm-3">Tags</Label>
         <div class="col-sm-9">
             <select id="tags" multiple class="form-select" @onchange="OnTagsChanged">
                 @foreach (var t in _allTags)
@@ -64,17 +59,13 @@
     <div class="row mb-2 align-items-center">
         <Label For="ink" Class="col-sm-3">Ink</Label>
         <div class="col-sm-9">
-            <textarea id="ink" rows="10" class="form-control" placeholder="// Ink content here"></textarea>
+            <textarea id="ink" rows="10" class="form-control" placeholder="// Ink content here" @bind="_inkJson"></textarea>
         </div>
     </div>
-
-    <div class="row mb-2 align-items-center">
-        <Label For="continue" Class="col-sm-3">Continue Button Text</Label>
-        <div class="col-sm-9">
-            <input id="continue" class="form-control" placeholder="Continue" />
-        </div>
-    </div>
-
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger">@($"Ink error: [{_errorMessage}]")</div>
+    }
     <div class="d-flex gap-2 mt-3">
         <button type="button" class="btn btn-success" @onclick="Save">Save</button>
         <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>

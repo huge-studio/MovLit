@@ -10,6 +10,11 @@ namespace Huge.MovLit.Repository
 {
     public partial class MyModuleRepository
     {
+        public async Task<Models.Story> GetStoryByModuleAsync(int moduleId)
+        {
+            using var db = _factory.CreateDbContext();
+            return await db.Story.AsNoTracking().FirstOrDefaultAsync(s => s.ModuleId == moduleId);
+        }
         public async Task<IEnumerable<Models.Story>> GetStoriesAsync()
         {
             using var db = _factory.CreateDbContext();
@@ -158,6 +163,36 @@ namespace Huge.MovLit.Repository
                 .Take(take)
                 .ToListAsync();
             return blogs;
+        }
+
+        public async Task<bool> HasViewAsync(int storyId, int? userId, int? visitorId)
+        {
+            using var db = _factory.CreateDbContext();
+            return await db.StoryView.AsNoTracking()
+                .AnyAsync(v => v.StoryId == storyId && (v.UserId == userId || (visitorId.HasValue && v.VisitorId == visitorId)));
+        }
+
+        public async Task<Models.StoryLike> ToggleStoryLikeAsync(Models.StoryLike like)
+        {
+            using var db = _factory.CreateDbContext();
+            var existing = await db.StoryLike
+                .FirstOrDefaultAsync(l => l.StoryId == like.StoryId && (l.UserId == like.UserId || (like.VisitorId.HasValue && l.VisitorId == like.VisitorId)));
+
+            var story = await db.Story.FirstOrDefaultAsync(s => s.StoryId == like.StoryId);
+            if (story == null) return null;
+
+            if (existing != null)
+            {
+                db.StoryLike.Remove(existing);
+                if (story.UpvoteCount > 0) story.UpvoteCount -= 1;
+            }
+            else
+            {
+                await db.StoryLike.AddAsync(like);
+                story.UpvoteCount += 1;
+            }
+            await db.SaveChangesAsync();
+            return existing ?? like;
         }
     }
 }

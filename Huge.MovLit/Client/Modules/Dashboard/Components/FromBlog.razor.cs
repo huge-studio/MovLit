@@ -1,9 +1,10 @@
+using Huge.MovLit.Services;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Modules;
 using Oqtane.Services;
-using Huge.MovLit.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Huge.Dashboard
 {
@@ -33,10 +34,10 @@ namespace Huge.Dashboard
             }
         }
 
-        private void Navigate(Huge.MovLit.Models.BlogPost post)
+        private async Task Navigate(Huge.MovLit.Models.BlogPost post)
         {
             if (post == null || string.IsNullOrEmpty(post.Slug)) return;
-            var path = post.Slug.StartsWith("/") ? post.Slug : $"/blog/!/2/{post.Slug}";
+            var path = post.Slug.StartsWith("/") ? post.Slug : $"https://movingliterature.com/blog/!/2/{post.Slug}";
             Navigation.NavigateTo(path);
         }
     }
