@@ -100,6 +100,7 @@ namespace Huge.Ink
             if (url == "#")
             {
                 nav.NavigateTo(nav.Uri, true);
+                return;
             }
             var page = moduleBase.NavigateUrl(url);
             nav.NavigateTo(page);
