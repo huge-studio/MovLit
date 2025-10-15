@@ -32,14 +32,13 @@ namespace Huge.Ink
 VAR player_name = """"        // empty string by default
 VAR courage = 0               // numbers start at 0 unless you set them
 VAR clues = 0
-VAR initialUrl = """"
+VAR initialUrl = ""lottie.host/7fc1b618-9bfe-4f08-883f-75fba6a72c0c/GkXnMVkqkH.lottie""
 
 ->intro
 
 === intro ===
 # lottie: {initialUrl}
-Welcome.This short story teaches core Ink pieces while it runs.If you are an authenticated user, we can set your username throughout the story. Other wise we will call you Traveler.Nice to meet you, {
-            player_name == """": Traveler | {player_name}}.
+Welcome. This short story teaches core Ink pieces while it runs. If you are an authenticated user, we can set your username throughout the story. Other wise we will call you Traveler. Nice to meet you, { player_name == """": Traveler | {player_name}}.
 
 * Get Started
     ->getting_started
@@ -52,11 +51,11 @@ You will see choices below. Click a choice to change variables and move the stor
 
 * [Pick up the lantern]            // one-time choice
     ~clues += 1                     // increment a number variable
-    The lantern flares to life.Clues is now { clues }.
+    The lantern flares to life. Clues is now {clues}.
     -> path_fork
 
 * [Leave the lantern]
-    Cautious.That is fine.Courage will help you later.
+    Cautious. That is fine. Courage will help you later.
     ->path_fork
 
 = path_fork
@@ -66,7 +65,7 @@ You step onto an old trail. Each choice below demonstrates behavior.
 
 + [Be bold and shout into the trees]
     ~courage += 1
-    Your voice echoes.Courage is now { courage }.
+    Your voice echoes. Courage is now {courage}.
     -> look_around
 
 + [Move quietly and watch]
@@ -75,25 +74,19 @@ You step onto an old trail. Each choice below demonstrates behavior.
 
 = look_around
 // Simple conditional text:
-{
-                courage > 0:
-    The echo makes you smile.You feel a little braver.
-- else:
-    Silence.You keep your focus.
-}
-
-            Now change the media tags at the top to your own.
+ { courage > 0: The echo makes you smile. You feel a little braver.- else:  Silence. You keep your focus.}
+Now change the media tags at the top to your own.
 For local files, use the uploader and copy the shown URL.
 For external files, omit https:\/\/ and the system will add it.
 
 You can also repeat a choice until a condition hides it.
 
-+ [Practice courage(+1 each time)] { courage < 3}
++ [Practice courage(+1 each time)] {courage < 3}
             ~courage += 1
     Practicing... Courage is now { courage }.
     -> look_around
 
-Time to wrap up.Choose an ending.
+Time to wrap up. Choose an ending.
 
 + [Show my current stats]
     You have Courage = { courage}
@@ -118,11 +111,11 @@ Conditionals\\
 // Edit the paths for your site.
 
 + [View other stories]
-    ~navigateUrl("" / dashboard"")
+    ~navigateUrl(""/dashboard"")
     ->END
 
 + [Watch this story again]
-    ~navigateUrl(""\\#"")
+    ~navigateUrl(""\#"")
     -> END
 ";
     }

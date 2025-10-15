@@ -200,7 +200,7 @@ namespace Huge.MovLit.Controllers
         // POST api/<controller>/view-once
         [HttpPost("view")]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public async Task<IActionResult> AddViewOnce([FromQuery] int moduleid, [FromBody] Models.StoryView view)
+        public async Task<IActionResult> AddView([FromQuery] int moduleid, [FromBody] Models.StoryView view)
         {
             if (!IsAuthorizedEntityId(EntityNames.Module, moduleid)) return Forbid();
             if (view == null || view.StoryId <= 0 || (!view.VisitorId.HasValue && !view.UserId.HasValue)) return BadRequest();

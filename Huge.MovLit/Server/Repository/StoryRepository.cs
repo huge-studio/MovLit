@@ -15,11 +15,6 @@ namespace Huge.MovLit.Repository
             using var db = _factory.CreateDbContext();
             return await db.Story.AsNoTracking().FirstOrDefaultAsync(s => s.ModuleId == moduleId);
         }
-        public async Task<IEnumerable<Models.Story>> GetStoriesAsync()
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.Story.AsNoTracking().ToListAsync();
-        }
 
         public async Task<Models.Story> GetStoryAsync(int StoryId, bool tracking = true)
         {
@@ -111,32 +106,12 @@ namespace Huge.MovLit.Repository
             return stories;
         }
 
-        public async Task<IEnumerable<Models.StoryView>> GetStoryViewsAsync(int StoryId)
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.StoryView.AsNoTracking().Where(v => v.StoryId == StoryId).ToListAsync();
-        }
-
         public async Task<Models.StoryView> AddStoryViewAsync(Models.StoryView view)
         {
             using var db = _factory.CreateDbContext();
             db.StoryView.Add(view);
             await db.SaveChangesAsync();
             return view;
-        }
-
-        public async Task<IEnumerable<Models.StoryLike>> GetStoryLikesAsync(int StoryId)
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.StoryLike.AsNoTracking().Where(l => l.StoryId == StoryId).ToListAsync();
-        }
-
-        public async Task<Models.StoryLike> AddStoryLikeAsync(Models.StoryLike like)
-        {
-            using var db = _factory.CreateDbContext();
-            db.StoryLike.Add(like);
-            await db.SaveChangesAsync();
-            return like;
         }
 
         public IEnumerable<Models.StoryView> GetStoryViewsForStories(IEnumerable<int> storyIds)
@@ -163,13 +138,6 @@ namespace Huge.MovLit.Repository
                 .Take(take)
                 .ToListAsync();
             return blogs;
-        }
-
-        public async Task<bool> HasViewAsync(int storyId, int? userId, int? visitorId)
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.StoryView.AsNoTracking()
-                .AnyAsync(v => v.StoryId == storyId && (v.UserId == userId || (visitorId.HasValue && v.VisitorId == visitorId)));
         }
 
         public async Task<Models.StoryLike> ToggleStoryLikeAsync(Models.StoryLike like)
