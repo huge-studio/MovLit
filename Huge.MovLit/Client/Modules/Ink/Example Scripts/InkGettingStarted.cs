@@ -40,7 +40,7 @@ VAR initialUrl = ""lottie.host/7fc1b618-9bfe-4f08-883f-75fba6a72c0c/GkXnMVkqkH.l
 # lottie: {initialUrl}
 Welcome. This short story teaches core Ink pieces while it runs. If you are an authenticated user, we can set your username throughout the story. Other wise we will call you Traveler. Nice to meet you, { player_name == """": Traveler | {player_name}}.
 
-* Get Started
+* [Get Started]
     ->getting_started
 
 === getting_started ===
@@ -74,7 +74,7 @@ You step onto an old trail. Each choice below demonstrates behavior.
 
 = look_around
 // Simple conditional text:
- { courage > 0: The echo makes you smile. You feel a little braver.- else:  Silence. You keep your focus.}
+ {courage > 0: The echo makes you smile. You feel a little braver. | Silence. You keep your focus.}
 Now change the media tags at the top to your own.
 For local files, use the uploader and copy the shown URL.
 For external files, omit https:\/\/ and the system will add it.
@@ -83,20 +83,20 @@ You can also repeat a choice until a condition hides it.
 
 + [Practice courage(+1 each time)] {courage < 3}
             ~courage += 1
-    Practicing... Courage is now { courage }.
+    Practicing... Courage is now {courage}.
     -> look_around
 
 Time to wrap up. Choose an ending.
 
 + [Show my current stats]
-    You have Courage = { courage}
-            and Clues = { clues }.
+    You have Courage = {courage}
+            and Clues = {clues}.
     Try another ending below.
     -> endings
 
 + [Add a clue and continue]
     ~clues += 1
-    Clues tick up to { clues}. Onward.
+    Clues tick up to {clues}. Onward.
     ->endings
 
 = endings
@@ -119,4 +119,4 @@ Conditionals\\
     -> END
 ";
     }
-    }
+}
