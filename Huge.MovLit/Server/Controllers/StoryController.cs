@@ -216,7 +216,12 @@ namespace Huge.MovLit.Controllers
         public async Task<ActionResult<Models.StoryLike>> ToggleLike([FromQuery] int moduleid, [FromBody] Models.StoryLike like)
         {
             if (!IsAuthorizedEntityId(EntityNames.Module, moduleid)) return Forbid();
-            if (like == null || like.StoryId <= 0 || (!like.VisitorId.HasValue && !like.UserId.HasValue)) return BadRequest();
+            if (like == null)
+                return BadRequest("Missing like object.");
+            if (like.StoryId <= 0)
+                return BadRequest("Invalid StoryId.");
+            if (!like.VisitorId.HasValue && !like.UserId.HasValue)
+                return BadRequest("Missing user identification (VisitorId or UserId required).");
 
             var result = await _repo.ToggleStoryLikeAsync(like);
             return Ok(result);
