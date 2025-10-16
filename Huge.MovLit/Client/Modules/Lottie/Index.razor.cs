@@ -79,10 +79,12 @@ public partial class Index : ModuleBase, IDisposable
         {
             SiteState.Properties.Lottie = _lottieSource;
             _needsPlay = true;
+            return;
         }
         else if (!string.IsNullOrWhiteSpace(_imageSource))
         {
             SiteState.Properties.Image = _imageSource;
+            return;
         }
     }
 

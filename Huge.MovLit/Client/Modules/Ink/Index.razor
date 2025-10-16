@@ -6,8 +6,11 @@
     <div class="card m-2" style="position:relative;">
         <div class="card-body d-flex flex-column flex-sm-row align-items-start gap-2">
             <h6 class="card-title text-primary m-0 me-auto">Ink Module</h6>
-            <a class="btn btn-primary" href="@settingsUrl">
+            <a class="btn btn-primary" href="@_settingsUrl">
                 <span class="bi bi-gear"></span> Settings
+            </a>
+            <a class="btn btn-primary" href="@_editUrl">
+                <span class="bi bi-gear"></span> Edit Story
             </a>
         </div>
     </div>
@@ -36,9 +39,25 @@ else
 {
     <div class="ink-container">
         <div class="card mb-3 prompt-card">
-            <div class="card-body">
-                <div class="prompt-text @( _settingsVM.CenterJustify ? "text-center" : string.Empty )" data-center-text="@_settingsVM.CenterJustify.ToString()">
+            <div class="card-body position-relative">
+                <div class="prompt-text mb-3 @( _settingsVM.CenterJustify ? "text-center" : string.Empty )" data-center-text="@_settingsVM.CenterJustify.ToString()">
                     @_currentLine
+                </div>
+
+                <!-- metrics badges -->
+                <div class="position-absolute bottom-0 end-0 mt-3 mx-3">
+                    <button type="button"
+                            class="my-1 btn btn-sm btn-secondary shadow-lg"
+                            disabled>
+                        <i class="bi bi-eye"></i> @_viewCount
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm my-1 @(_liked ? "btn-danger" : "btn-outline-danger") shadow-lg"
+                            disabled="@(!_canLike)"
+                            title="@(_liked ? "Unlike" : "Like")"
+                            @onclick="ToggleLikeAsync">
+                        <i class="bi  @(_liked ? "bi-heart-fill" : "bi-heart")"></i> @_likeCount
+                    </button>
                 </div>
             </div>
         </div>

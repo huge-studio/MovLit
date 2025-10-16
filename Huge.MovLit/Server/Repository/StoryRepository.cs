@@ -1,19 +1,20 @@
+using Huge.MovLit.Enums;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
+using Oqtane.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Modules;
 using System.Threading.Tasks;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 namespace Huge.MovLit.Repository
 {
     public partial class MyModuleRepository
     {
-        public async Task<IEnumerable<Models.Story>> GetStoriesAsync()
+        public async Task<Models.Story> GetStoryByModuleAsync(int moduleId)
         {
             using var db = _factory.CreateDbContext();
-            return await db.Story.AsNoTracking().ToListAsync();
+            return await db.Story.AsNoTracking().FirstOrDefaultAsync(s => s.ModuleId == moduleId);
         }
 
         public async Task<Models.Story> GetStoryAsync(int StoryId, bool tracking = true)
@@ -65,6 +66,10 @@ namespace Huge.MovLit.Repository
             using var db = _factory.CreateDbContext();
 
             List<Models.Story> stories = await db.Story.AsNoTracking()
+                .Where(s =>
+                    s.CoverArtUrl != null &&
+                    s.Title != InkGettingStarted.Title &&
+                    s.Description != InkGettingStarted.Description)
                 .OrderByDescending(s => s.UpvoteCount)
                 .ThenByDescending(s => s.CreatedOn)
                 .Take(take)
@@ -85,7 +90,11 @@ namespace Huge.MovLit.Repository
                     Story = s,
                     Views30d = db.StoryView.Count(v => v.StoryId == s.StoryId && v.CreatedOn >= since)
                 })
-                .Where(x => x.Views30d > 0)                     // skip stories with no recent views
+                .Where(x =>
+                    x.Views30d > 0 &&                   // skip stories with no recent views
+                    x.Story.CoverArtUrl != null &&
+                    x.Story.Title != InkGettingStarted.Title &&
+                    x.Story.Description != InkGettingStarted.Description)
                 .OrderByDescending(x => x.Views30d)
                 .ThenByDescending(x => x.Story.CreatedOn)       // tie breaker
                 .Take(take)
@@ -100,16 +109,14 @@ namespace Huge.MovLit.Repository
 
             using var db = _factory.CreateDbContext();
             List<Models.Story> stories = await db.Story.AsNoTracking()
+                .Where(s =>
+                    s.CoverArtUrl != null &&
+                    s.Title != InkGettingStarted.Title &&
+                    s.Description != InkGettingStarted.Description)
                 .OrderByDescending(s => s.CreatedOn)
                 .Take(take)
                 .ToListAsync();
             return stories;
-        }
-
-        public async Task<IEnumerable<Models.StoryView>> GetStoryViewsAsync(int StoryId)
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.StoryView.AsNoTracking().Where(v => v.StoryId == StoryId).ToListAsync();
         }
 
         public async Task<Models.StoryView> AddStoryViewAsync(Models.StoryView view)
@@ -118,20 +125,6 @@ namespace Huge.MovLit.Repository
             db.StoryView.Add(view);
             await db.SaveChangesAsync();
             return view;
-        }
-
-        public async Task<IEnumerable<Models.StoryLike>> GetStoryLikesAsync(int StoryId)
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.StoryLike.AsNoTracking().Where(l => l.StoryId == StoryId).ToListAsync();
-        }
-
-        public async Task<Models.StoryLike> AddStoryLikeAsync(Models.StoryLike like)
-        {
-            using var db = _factory.CreateDbContext();
-            db.StoryLike.Add(like);
-            await db.SaveChangesAsync();
-            return like;
         }
 
         public IEnumerable<Models.StoryView> GetStoryViewsForStories(IEnumerable<int> storyIds)
@@ -158,6 +151,29 @@ namespace Huge.MovLit.Repository
                 .Take(take)
                 .ToListAsync();
             return blogs;
+        }
+
+        public async Task<Models.StoryLike> ToggleStoryLikeAsync(Models.StoryLike like)
+        {
+            using var db = _factory.CreateDbContext();
+            var existing = await db.StoryLike
+                .FirstOrDefaultAsync(l => l.StoryId == like.StoryId && (l.UserId == like.UserId || (like.VisitorId.HasValue && l.VisitorId == like.VisitorId)));
+
+            var story = await db.Story.FirstOrDefaultAsync(s => s.StoryId == like.StoryId);
+            if (story == null) return null;
+
+            if (existing != null)
+            {
+                db.StoryLike.Remove(existing);
+                if (story.UpvoteCount > 0) story.UpvoteCount -= 1;
+            }
+            else
+            {
+                await db.StoryLike.AddAsync(like);
+                story.UpvoteCount += 1;
+            }
+            await db.SaveChangesAsync();
+            return existing ?? like;
         }
     }
 }

@@ -18,14 +18,14 @@
 
 @code {
     private string resourceType = "Huge.MovLit.MovLitTheme.ContainerSettings, Huge.MovLit.Client.Oqtane"; // for localization
-    private string _title = "true";
+    private string _title = "false";
 
     protected override void OnInitialized()
     {
         try
         {
 
-            _title = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "true");
+            _title = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "false");
 
         }
         catch (Exception ex)

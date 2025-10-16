@@ -56,7 +56,12 @@
                                         <div class="row g-2 align-items-center">
                                             <div class="col-sm-4">
                                                 <label class="form-label small mb-1">Title</label>
-                                                <input class="form-control form-control-sm" @bind="s.Title" />
+                                                <select class="form-select form-select-sm mt-1" @bind="s.Title" >
+                                                    @foreach (var filter in DashboardFilters.GetAllFilters)
+                                                    {
+                                                        <option value="@filter">@filter</option>
+                                                    }
+                                                </select>
                                             </div>
                                             <div class="col-sm-3">
                                                 <label class="form-label small mb-1">Action Text</label>

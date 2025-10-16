@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36414.22 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Huge.MovLit.Server", "Server\Huge.MovLit.Server.csproj", "{04B05448-788F-433D-92C0-FED35122D45A}"
 EndProject
@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Huge.Movlit.Data", "Huge.Movlit.Data\Huge.Movlit.Data.sqlproj", "{5ED1C4D3-AB30-42B9-A1DA-AD095D104749}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{F9045A8A-65D3-48BC-9F74-3C3CD473E465}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,6 +66,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D9A9A079-C78F-DA52-98B6-6856D03A1F0C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{DA03BF99-B325-D99F-D09E-F84A704D9A49} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{5ED1C4D3-AB30-42B9-A1DA-AD095D104749} = {F9045A8A-65D3-48BC-9F74-3C3CD473E465}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CB3F3937-36D0-4488-BF9C-CC99CCA089C2}

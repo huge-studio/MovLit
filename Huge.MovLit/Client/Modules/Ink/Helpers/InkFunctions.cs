@@ -97,6 +97,11 @@ namespace Huge.Ink
         // navigate url
         public static void NavigateUrl(string url, ModuleBase moduleBase, NavigationManager nav)
         {
+            if (url == "#")
+            {
+                nav.NavigateTo(nav.Uri, true);
+                return;
+            }
             var page = moduleBase.NavigateUrl(url);
             nav.NavigateTo(page);
         }
