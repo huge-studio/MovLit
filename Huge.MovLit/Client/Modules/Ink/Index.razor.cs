@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using InkRun = global::Ink.Runtime;
+using Huge.MovLit.Enums;
 
 namespace Huge.Ink
 {

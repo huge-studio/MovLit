@@ -77,6 +77,12 @@ namespace Huge.MovLit.Controllers
                     stories = await _repo.GetNewestAsync(take);
                 }
 
+                //filter out incomplete stories (missing cover art) and the Ink Getting Started example story
+                stories = stories.Where(s =>
+                    s.CoverArtUrl != null &&
+                    s.Title != InkGettingStarted.Title &&
+                    s.Description != InkGettingStarted.Description);
+
                 if (stories == null || !stories.Any())
                 {
                     _logger.Log(LogLevel.Warning, this, LogFunction.Read, "No stories found");

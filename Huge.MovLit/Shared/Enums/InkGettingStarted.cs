@@ -1,16 +1,12 @@
-using Ink;
-using Ink.Parsed;
 using Oqtane.Models;
 using Oqtane.Shared;
-using Radzen;
-using Radzen.Blazor.Rendering;
 using System.Runtime.InteropServices.JavaScript;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Huge.Ink
+namespace Huge.MovLit.Enums
 {
-    internal static class InkGettingStarted
+    public static class InkGettingStarted
     {
         public const string Title = "Welcome to Ink";
         public const string Description = "This starter story shows how to write basic Ink: variables, choices, diverts, tags, and simple navigation.";
