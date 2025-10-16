@@ -1,10 +1,11 @@
+using Huge.MovLit.Enums;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
+using Oqtane.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Modules;
 using System.Threading.Tasks;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 namespace Huge.MovLit.Repository
 {
@@ -65,6 +66,10 @@ namespace Huge.MovLit.Repository
             using var db = _factory.CreateDbContext();
 
             List<Models.Story> stories = await db.Story.AsNoTracking()
+                .Where(s =>
+                    s.CoverArtUrl != null &&
+                    s.Title != InkGettingStarted.Title &&
+                    s.Description != InkGettingStarted.Description)
                 .OrderByDescending(s => s.UpvoteCount)
                 .ThenByDescending(s => s.CreatedOn)
                 .Take(take)
@@ -85,7 +90,11 @@ namespace Huge.MovLit.Repository
                     Story = s,
                     Views30d = db.StoryView.Count(v => v.StoryId == s.StoryId && v.CreatedOn >= since)
                 })
-                .Where(x => x.Views30d > 0)                     // skip stories with no recent views
+                .Where(x =>
+                    x.Views30d > 0 &&                   // skip stories with no recent views
+                    x.Story.CoverArtUrl != null &&
+                    x.Story.Title != InkGettingStarted.Title &&
+                    x.Story.Description != InkGettingStarted.Description)
                 .OrderByDescending(x => x.Views30d)
                 .ThenByDescending(x => x.Story.CreatedOn)       // tie breaker
                 .Take(take)
@@ -100,6 +109,10 @@ namespace Huge.MovLit.Repository
 
             using var db = _factory.CreateDbContext();
             List<Models.Story> stories = await db.Story.AsNoTracking()
+                .Where(s =>
+                    s.CoverArtUrl != null &&
+                    s.Title != InkGettingStarted.Title &&
+                    s.Description != InkGettingStarted.Description)
                 .OrderByDescending(s => s.CreatedOn)
                 .Take(take)
                 .ToListAsync();
