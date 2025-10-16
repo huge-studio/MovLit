@@ -33,3 +33,8 @@
         overflow: auto; 
     }
 }
+
+featured-image{
+    max-height: 300px;
+    max-width: auto;
+}

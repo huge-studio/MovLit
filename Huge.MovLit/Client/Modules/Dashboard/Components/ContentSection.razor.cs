@@ -30,7 +30,7 @@ namespace Huge.Dashboard
             try
             {
                 (_stories, var code) = await StoryService.GetAsync(SectionTitle, Cards, ModuleState.ModuleId);
-                if (_stories.Count > 0)
+                if (_stories?.Count > 0)
                 {
                     var ids = new List<int>(_stories.Count);
                     foreach (var s in _stories) 

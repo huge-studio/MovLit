@@ -13,8 +13,11 @@
     [ModifiedBy]  NVARCHAR (100)  NULL,
     [ModifiedOn]  DATETIME2 (0)   NULL,
     [PageId]      INT             NOT NULL,
-    [ViewCount]   INT             CONSTRAINT [DF_Story_ViewCount] DEFAULT ((0)) NOT NULL
+    [ViewCount]   INT             CONSTRAINT [DF_Story_ViewCount] DEFAULT ((0)) NOT NULL,
+    [Tags]        NVARCHAR (MAX)  NULL
 );
+
+
 
 
 GO

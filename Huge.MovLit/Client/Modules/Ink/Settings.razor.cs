@@ -36,8 +36,6 @@ namespace Huge.Ink
                 await logger.LogError(ex, "Error Loading settings {Error}", ex.Message);
             }
 
-            CompileStory();
-
             loading = false;
         }
 
@@ -48,30 +46,6 @@ namespace Huge.Ink
             var uri = new Uri(NavigationManager.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             PageState.ReturnUrl = query.Get("returnUrl") ?? "/";
-        }
-
-
-        protected void CompileStory()
-        {
-            _errorMessage = "";
-
-            try
-            {
-                // add headers to the ink
-                var headers = InkFunctions.GetHeaders();
-                var ink = $"{headers}\n\n{_settingsVM.Ink}";
-
-                // compile the story
-                var compiler = new Compiler(ink);
-                var compiledStory = compiler.Compile();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error Loading settings {Error}", ex.Message);
-                _errorMessage = ex.Message;
-            }
-
-            StateHasChanged();
         }
 
         public async Task UpdateSettings()

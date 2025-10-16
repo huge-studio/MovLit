@@ -21,6 +21,7 @@ namespace Huge.MovLit.Models
         public string Description { get; set; }
         public string InkJson { get; set; }
         public int UpvoteCount { get; set; }
+        public List<string> Tags { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }

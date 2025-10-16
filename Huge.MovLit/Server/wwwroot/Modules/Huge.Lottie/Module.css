@@ -3,7 +3,6 @@
     grid-template-rows: 100%;
     place-items: center;
     width: 100%;
-    min-height: 320px; 
     max-width: 100%;
 }
 
@@ -15,8 +14,20 @@
     min-height: 120px;
 }
 
+/* Responsive default size – modest by default */
 .lottie-360 {
-    height: 360px;
+    height: clamp(200px, 32vw, 360px);
+    width: 100%;
+    max-width: 560px;
+    margin-inline: auto;
+}
+
+/* A little bigger on medium and smaller screens */
+@media (max-width: 991.98px) { /* md and down */
+  .lottie-360 { height: clamp(240px, 45vw, 420px); }
+}
+@media (max-width: 575.98px) { /* xs */
+  .lottie-360 { height: clamp(260px, 55vw, 440px); }
 }
 
 .lottie-wrapper > img,
@@ -25,8 +36,8 @@
 .lottie-wrapper > dotlottie-wc {
     grid-column-start: 1;
     grid-row-start: 1;
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: 100%; /* follow wrapper height */
     max-width: 100%;
     display: block;
 }
@@ -45,4 +56,10 @@
 .lottie-wrapper dotlottie-player svg {
     width: fit-content;
     height: 100%;
+}
+
+@media (min-width: 768px) and (max-width: 884.98px) {
+    .lottie-wrapper {
+        margin-top: 50px;
+    }
 }

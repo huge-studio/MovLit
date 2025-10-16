@@ -1,279 +1,405 @@
 using global::Ink;
 using Huge.MovLit.Models;
+using Huge.MovLit.Services;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Xml;
 using InkRun = global::Ink.Runtime;
+using Huge.MovLit.Enums;
 
-namespace Huge.Ink;
-
-public partial class Index : ModuleBase, IDisposable
+namespace Huge.Ink
 {
-
-    [Inject]
-    protected NavigationManager NavigationManager { get; set; }
-    [Inject]
-    protected ISettingService SettingService { get; set; }
-
-
-    bool loading;
-
-    // properties we listed for
-    private const string UserStateProperty = "UserState";
-
-    MarkupString _currentLine = new MarkupString();
-    List<CustomInkChoice> _currentChoices = new();
-    List<string> _inkState = new();
-
-    bool _hasNext = false;
-    bool _hasPrevious = false;
-    bool _hasFinish = false;
-    int _pageCount = 0;
-    SettingsViewModel _settingsVM;
-
-    protected InkRun.Story _story;
-    private bool disposedValue;
-    private string settingsUrl;
-    private string returnUrl;
-
-    protected override void OnInitialized()
+    public partial class Index : ModuleBase, IDisposable
     {
-        // listen for changes to sitestate
-        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
-    }
+        [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected ISettingService SettingService { get; set; }
+        [Inject] protected StoryService StoryService { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (!ShouldRender()) return;
+        private bool loading = true;
 
-        loading = true;
+        private const string UserStateProperty = "UserState";
 
-        var moduleSettings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-        _settingsVM = new SettingsViewModel(SettingService, moduleSettings);
+        private MarkupString _currentLine = new MarkupString();
+        private List<CustomInkChoice> _currentChoices = new();
+        private List<string> _inkState = new();
 
-        returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
-        settingsUrl = EditUrl("Settings", $"returnurl={returnUrl}&tab=ModuleSettings");
+        private bool _hasNext = false;
+        private bool _hasPrevious = false;
+        private bool _hasFinish = false;
+        private int _pageCount = 0;
+        private SettingsViewModel _settingsVM;
+        protected Story _storyEntity;
+        private bool _storyLoaded = false;
+        private bool _viewSent = false;
+        private int _viewCount = 0;
+        private int _likeCount = 0;
+        private bool _liked = false;
+        private bool _canLike = false;
 
-        CompileStory();
+        protected InkRun.Story _story;
+        private bool disposedValue;
+        private string _settingsUrl;
+        private string _returnUrl;
+        private string _editUrl;
 
-        if (PageState.EditMode || _story == null)
-            return;
-
-        try
+        protected override async Task OnInitializedAsync()
         {
-            _inkState = new();
+            try
+            {
+                ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+
+                _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
+                _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
+
+                await EnsureStoryLoadedAsync();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            }
+        }
+
+        protected override async Task OnParametersSetAsync()
+        {
+            if (!ShouldRender()) return;
+
+            loading = true;
+
+            try
+            {
+                var moduleSettings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+                _settingsVM = new SettingsViewModel(SettingService, moduleSettings);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Settings {Error}", ex.Message);
+            }
+
+            try
+            {
+                await EnsureStoryLoadedAsync();
+                CompileStory();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error loading or compiling story {Error}", ex.Message);
+            }
+
+            if (_story == null)
+            {
+                loading = false;
+                return;
+            }
+
+            try
+            {
+                _canLike = PageState.VisitorId > 0 || (PageState.User?.UserId ?? 0) > 0;
+
+                // metrics after potential view logged in OnInitializedAsync
+                await LoadMetricsAsync();
+
+                _inkState = new();
+                if (_story.canContinue)
+                {
+                    Next();
+                }
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            }
+
+            loading = false;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (!firstRender) return;
+            try
+            {
+                if (!_viewSent)
+                {
+                    await EnsureStoryLoadedAsync();
+                    await LogViewAsync();
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error logging view {Error}", ex.Message);
+            }
+        }
+
+
+        private async Task EnsureStoryLoadedAsync()
+        {
+            try
+            {
+                if (_storyLoaded && _storyEntity != null) return;
+
+                (_storyEntity, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+
+                if (_storyEntity is null || code == HttpStatusCode.NotFound)
+                {
+                    // Create the starter story on first visit
+                    var starter = new Story
+                    {
+                        ModuleId = ModuleState.ModuleId,
+                        PageId = ModuleState.PageId,
+                        Title = InkGettingStarted.Title,
+                        Description = InkGettingStarted.Description,
+                        AuthorName = PageState.User.Username,
+                        AuthorId = PageState.User.UserId,
+                        InkJson = InkGettingStarted.Body
+                    };
+                    var (created, addCode) = await StoryService.AddAsync(starter);
+                    if (addCode == HttpStatusCode.OK || addCode == HttpStatusCode.Created)
+                    {
+                        _storyEntity = created;
+                    }
+                    else
+                    {
+                        _storyEntity = new Story();
+                    }
+                    _editUrl = EditUrl("Edit", $"?returnurl={_returnUrl}&edit=true");
+                }
+                else
+                {
+                    _editUrl = EditUrl("Edit", $"?returnurl={_returnUrl}&edit=true");
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error loading story for module {Error}", ex.Message);
+            }
+            finally
+            {
+                _storyLoaded = true;
+
+            }
+        }
+
+        private async Task LogViewAsync()
+        {
+            if (_storyEntity?.StoryId <= 0) return;
+            // Only skip logging if both visitor and user are missing
+            if (PageState.VisitorId <= 0 && (PageState.User?.UserId ?? 0) <= 0) return;
+
+            var view = new StoryView
+            {
+                StoryId = _storyEntity.StoryId,
+                VisitorId = PageState.VisitorId > 0 ? PageState.VisitorId : null,
+                UserId = (PageState.User?.UserId ?? 0) > 0 ? PageState.User.UserId : null,
+            };
+            await StoryService.AddView(ModuleState.ModuleId, view);
+            _viewSent = true;
+        }
+
+        private async Task ToggleLikeAsync()
+        {
+            if (!_canLike || _storyEntity?.StoryId <= 0) return;
+
+            var like = new StoryLike
+            {
+                StoryId = _storyEntity.StoryId,
+                VisitorId = PageState.VisitorId > 0 ? PageState.VisitorId : null,
+                UserId = (PageState.User?.UserId ?? 0) > 0 ? PageState.User.UserId : (int?)null,
+            };
+            var (result, code) = await StoryService.ToggleLikeAsync(ModuleState.ModuleId, like);
+            if (code == HttpStatusCode.OK)
+            {
+                _liked = !_liked;
+                _likeCount += _liked ? 1 : -1;
+            }
+        }
+
+        private async Task LoadMetricsAsync()
+        {
+            if (_storyEntity?.StoryId <= 0) return;
+            var ids = new[] { _storyEntity.StoryId };
+            var (data, code) = await StoryService.GetMetricsAsync(ModuleState.ModuleId, ids);
+            if (code == HttpStatusCode.OK && data != null && data.TryGetValue(_storyEntity.StoryId, out var m))
+            {
+                _viewCount = m.ViewCount;
+                _likeCount = m.LikeCount;
+                var visitorId = PageState.VisitorId > 0 ? (int?)PageState.VisitorId : null;
+                var userId = (PageState.User?.UserId ?? 0) > 0 ? (int?)PageState.User.UserId : null;
+                _liked = (visitorId.HasValue && (m.VisitorLikeIds?.Contains(visitorId) ?? false))
+                         || (userId.HasValue && (m.UserLikeIds?.Contains(userId) ?? false));
+            }
+        }
+
+        protected void CompileStory()
+        {
+            try
+            {
+                if (_storyEntity == null || string.IsNullOrEmpty(_storyEntity.InkJson))
+                {
+                    _story = null;
+                    return;
+                }
+
+                var headers = InkFunctions.GetHeaders();
+                var ink = $"{headers}\n\n{_storyEntity?.InkJson}";
+
+                var compiler = new Compiler(ink);
+                var compiledStory = compiler.Compile();
+                _story = compiledStory;
+
+                InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager);
+            }
+            catch (Exception ex)
+            {
+                _story = null;
+                logger.LogError(ex, "Error Loading story {message}", ex.Message);
+                AddModuleMessage("Error Loading Story", MessageType.Error);
+            }
+        }
+
+        protected void ChoiceSelected(CustomInkChoice choice)
+        {
+            var choiceIndex = choice.Index;
+            _story.ChooseChoiceIndex(choiceIndex);
+            Next();
+        }
+
+        private void Next()
+        {
+            if (_story == null) return;
+
+            // If available set initialUrl from lottie module
+            InkVariables.SetInitialUrl(_story, SiteState);
+            // If available set player_name from user name
+            InkVariables.SetPlayerName(_story, PageState);
+
             if (_story.canContinue)
             {
-                Next();
+                var allTags = new List<string>();
+                var allLines = new List<string>();
+
+                while (_story.canContinue)
+                {
+                    allLines.Add(_story.Continue());
+                    allTags.AddRange(_story.currentTags);
+                }
+                _currentLine = ProcessStoryText(string.Concat(allLines));
+                _inkState.Add(_story.state.ToJson());
+            }
+
+            ProcessTags();
+        }
+
+        public void SetInitialUrl()
+        {
+            var lottie = SiteState.Properties.Lottie;
+            var image = SiteState.Properties.Image;
+
+            var source = !string.IsNullOrWhiteSpace(lottie) ? lottie
+                       : !string.IsNullOrWhiteSpace(image) ? image
+                       : null;
+
+            if (!string.IsNullOrWhiteSpace(source))
+            {
+                _story.variablesState["initialUrl"] = source;
+            }
+        }
+
+        private void Previous()
+        {
+            if (_story != null && _inkState.Any())
+            {
+                _inkState.RemoveAt(_inkState.Count - 1);
+
+                var state = _inkState.LastOrDefault();
+                _story.state.LoadJson(state);
+
+                _currentLine = ProcessStoryText(_story.currentText);
+                ProcessTags();
+            }
+        }
+
+        MarkupString ProcessStoryText(string text)
+        {
+            text = text.Replace("\\", "\n");
+            var output = Markdig.Markdown.ToHtml(text);
+            return new MarkupString(output);
+        }
+
+        private void ProcessTags()
+        {
+            if (_story == null)
+            {
+                return;
+            }
+
+            if (_story.currentTags.Any(s => s.Contains("lottie", StringComparison.OrdinalIgnoreCase) || s.Contains("image", StringComparison.OrdinalIgnoreCase)))
+            {
+                var lottieUrl = UrlParser.ParseTagUrl(_story.currentTags, "lottie:", NavigationManager);
+                if (!string.IsNullOrEmpty(lottieUrl))
+                {
+                    SiteState.Properties.Lottie = lottieUrl;
+                }
+
+                var imageUrl = UrlParser.ParseTagUrl(_story.currentTags, "image:", NavigationManager);
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    SiteState.Properties.Image = imageUrl;
+                }
+            }
+
+            _currentChoices = _story.currentChoices
+                                    .Select(choice => new CustomInkChoice
+                                    {
+                                        Text = choice.text,
+                                        Tags = choice.tags,
+                                        Index = choice.index,
+                                        PathStringOnChoice = choice.pathStringOnChoice
+                                    })
+                                    .ToList();
+
+            _hasNext = _story.canContinue;
+            _hasPrevious = _inkState.Count > 1 && _settingsVM.HasPrevious;
+            _hasFinish = !_hasNext && _currentChoices.Count == 0;
+
+            if (string.IsNullOrEmpty(_currentLine.Value) && !_hasNext && _currentChoices.Count == 0)
+            {
+                return;
             }
 
             StateHasChanged();
         }
-        catch (Exception ex)
+
+        async void PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
-        }
-
-        loading = false;
-    }
-
-    protected void CompileStory()
-    {
-
-        try
-        {
-            if (string.IsNullOrEmpty(_settingsVM.Ink))
+            if (e.PropertyName == UserStateProperty)
             {
-                _story = null;
-            }
-
-            // add headers to the ink
-            var headers = InkFunctions.GetHeaders();
-            var ink = $"{headers}\n\n{_settingsVM.Ink}";
-
-            // compile the story
-            var compiler = new Compiler(ink);
-            var compiledStory = compiler.Compile();
-            _story = compiledStory;
-
-            // bind external functions
-            InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager);
-        }
-        catch (Exception ex)
-        {
-            _story = null;
-            logger.LogError(ex, "Error Loading story {message}", ex.Message);
-            AddModuleMessage("Error Loading Story", MessageType.Error);
-        }
-
-    }
-
-
-    protected void ChoiceSelected(CustomInkChoice choice)
-    {
-        var choiceIndex = choice.Index;
-        _story.ChooseChoiceIndex(choiceIndex);
-        Next();
-    }
-
-    private void Next()
-    {
-        if(_story == null) return;
-
-        //If using the lottie initial source, set it in the ink variable only once
-        if (_story.variablesState.GlobalVariableExistsWithName("initialUrl") && string.IsNullOrWhiteSpace(_story.variablesState["initialUrl"] as string))
-        {
-            SetInitialUrl();
-        }
-
-        if (_story.canContinue)
-        {
-            //string nextLine = _story.ContinueMaximally();
-            //_currentLine = ProcessStoryText(nextLine);
-            //_inkState.Add(_story.state.ToJson());
-
-            var allTags = new List<string>();
-            var allLines = new List<string>();
-
-            while (_story.canContinue)
-            {
-                allLines.Add(_story.Continue());
-                allTags.AddRange(_story.currentTags);
-            }
-            _currentLine = ProcessStoryText(string.Concat(allLines));
-            _inkState.Add(_story.state.ToJson());
-        }
-
-        ProcessTags();
-    }
-
-    public void SetInitialUrl()
-    {
-        var lottie = SiteState.Properties.Lottie;
-        var image = SiteState.Properties.Image;
-
-        // pick the first non-empty source
-        var source = !string.IsNullOrWhiteSpace(lottie) ? lottie
-                   : !string.IsNullOrWhiteSpace(image) ? image
-                   : null;
-
-        // only set if we have a source and the Ink var is blank
-        if (!string.IsNullOrWhiteSpace(source))
-        {
-            _story.variablesState["initialUrl"] = source;
-        }
-    }
-
-    private void Previous()
-    {
-        if (_story != null && _inkState.Any())
-        {
-            // remove the current state and load the last one
-            _inkState.RemoveAt(_inkState.Count - 1); // could be a pop?
-
-            var state = _inkState.LastOrDefault();
-            _story.state.LoadJson(state);
-
-            _currentLine = ProcessStoryText(_story.currentText);
-            ProcessTags();
-        }
-
-    }
-
-    MarkupString ProcessStoryText(string text)
-    {
-        // because the Ink authoring tool may not support "\n" line breaks, process "<br>" to linebreaks to allow Markdown to parse them
-        text = text.Replace("\\", "\n");
-
-        var output = Markdig.Markdown.ToHtml(text);
-
-        return new MarkupString(output);
-    }
-
-    private void ProcessTags()
-    {
-        if (_story == null)
-        {
-            return;
-        }
-
-        //
-        if (_story.currentTags.Any(s => s.Contains("lottie", StringComparison.OrdinalIgnoreCase) || s.Contains("image", StringComparison.OrdinalIgnoreCase)))
-        {
-
-            var lottieUrl = UrlParser.ParseTagUrl(_story.currentTags, "lottie:", NavigationManager);
-            if (!string.IsNullOrEmpty(lottieUrl))
-            {
-                SiteState.Properties.Lottie = lottieUrl;
-            }
-
-            var imageUrl = UrlParser.ParseTagUrl(_story.currentTags, "image:", NavigationManager);
-            if (!string.IsNullOrEmpty(imageUrl))
-            {
-                SiteState.Properties.Image = imageUrl;
+                InkFunctions.SyncUserState(_story, SiteState, PageState);
             }
         }
 
-        _currentChoices = _story.currentChoices
-                                .Select(choice => new CustomInkChoice
-                                {
-                                    Text = choice.text,
-                                    Tags = choice.tags,
-                                    Index = choice.index,
-                                    PathStringOnChoice = choice.pathStringOnChoice
-                                })
-                                .ToList();
-
-        _hasNext = _story.canContinue;
-        _hasPrevious = _inkState.Count > 1;
-        _hasFinish = !_hasNext && _currentChoices.Count == 0;
-
-        if (string.IsNullOrEmpty(_currentLine.Value) && !_hasNext && _currentChoices.Count == 0)
+        protected virtual void Dispose(bool disposing)
         {
-            // if there's no more text and no more choices, we're at the end of the story
-            return;
-        }
-
-        StateHasChanged();
-    }
-
-    async void PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-
-        // listen for changes to siteState.Properties.InkVariable
-        if (e.PropertyName == UserStateProperty)
-        {
-            // sync the user state with any ink variables
-            InkFunctions.SyncUserState(_story, SiteState, PageState);
-        }
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
+            if (!disposedValue)
             {
-                // TODO: dispose managed state (managed objects)
+                if (disposing)
+                {
+                }
+                disposedValue = true;
             }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            disposedValue = true;
         }
-    }
 
-    public void Dispose()
-    {
-        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+        public void Dispose()
+        {
+            ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+        }
     }
 }
