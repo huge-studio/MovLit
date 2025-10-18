@@ -49,6 +49,8 @@ namespace Huge.Ink
         private string _returnUrl;
         private string _editUrl;
 
+        private readonly List<StepSnapshot> _history = new();
+
         protected override async Task OnInitializedAsync()
         {
             try
@@ -281,21 +283,30 @@ namespace Huge.Ink
             // If available set player_name from user name
             InkVariables.SetPlayerName(_story, PageState);
 
+            var allTags = new List<string>();
+            var allLines = new List<string>();
+
             if (_story.canContinue)
             {
-                var allTags = new List<string>();
-                var allLines = new List<string>();
 
                 while (_story.canContinue)
                 {
                     allLines.Add(_story.Continue());
-                    allTags.AddRange(_story.currentTags);
+                    if (_story.currentTags is { Count: > 0 }) allTags.AddRange(_story.currentTags);
                 }
                 _currentLine = ProcessStoryText(string.Concat(allLines));
                 _inkState.Add(_story.state.ToJson());
             }
 
-            ProcessTags();
+            ProcessTags(allTags);
+
+            _history.Add(new StepSnapshot
+            {
+                StateJson = _story.state.ToJson(),
+                CurrentLine = string.Concat(allLines),
+                LottieUrl = SiteState.Properties.Lottie,
+                ImageUrl = SiteState.Properties.Image
+            });
         }
 
         public void SetInitialUrl()
@@ -315,17 +326,33 @@ namespace Huge.Ink
 
         private void Previous()
         {
-            if (_story != null && _inkState.Any())
+            if (_story == null) return;
+            if (_history.Count <= 1) return; // already at the first step
+
+            // Pop current step from both stacks (keep them in lockstep)
+            _history.RemoveAt(_history.Count - 1);
+            _inkState.RemoveAt(_inkState.Count - 1);
+
+            // Snapshot to restore
+            var snap = _history[^1];
+
+            // Restore Ink state
+            var stateJson = _inkState.LastOrDefault();
+            if (!string.IsNullOrEmpty(stateJson))
             {
-                _inkState.RemoveAt(_inkState.Count - 1);
-
-                var state = _inkState.LastOrDefault();
-                _story.state.LoadJson(state);
-
-                _currentLine = ProcessStoryText(_story.currentText);
-                ProcessTags();
+                _story.state.LoadJson(stateJson);
             }
+
+            // Reset the SiteState properties for the Lottie Module
+            SiteState.Properties.Lottie = snap.LottieUrl;
+            SiteState.Properties.Image = snap.ImageUrl;
+
+            //Set the current line
+            _currentLine = ProcessStoryText(snap.CurrentLine);
+            _hasPrevious = _history.Count > 1 ? true : false;
+
         }
+
 
         MarkupString ProcessStoryText(string text)
         {
@@ -334,22 +361,22 @@ namespace Huge.Ink
             return new MarkupString(output);
         }
 
-        private void ProcessTags()
+        private void ProcessTags(List<string> tags)
         {
             if (_story == null)
             {
                 return;
             }
 
-            if (_story.currentTags.Any(s => s.Contains("lottie", StringComparison.OrdinalIgnoreCase) || s.Contains("image", StringComparison.OrdinalIgnoreCase)))
+            if (tags.Any(s => s.Contains("lottie", StringComparison.OrdinalIgnoreCase) || s.Contains("image", StringComparison.OrdinalIgnoreCase)))
             {
-                var lottieUrl = UrlParser.ParseTagUrl(_story.currentTags, "lottie:", NavigationManager);
+                var lottieUrl = UrlParser.ParseTagUrl(tags, "lottie:", NavigationManager);
                 if (!string.IsNullOrEmpty(lottieUrl))
                 {
                     SiteState.Properties.Lottie = lottieUrl;
                 }
 
-                var imageUrl = UrlParser.ParseTagUrl(_story.currentTags, "image:", NavigationManager);
+                var imageUrl = UrlParser.ParseTagUrl(tags, "image:", NavigationManager);
                 if (!string.IsNullOrEmpty(imageUrl))
                 {
                     SiteState.Properties.Image = imageUrl;
@@ -401,5 +428,13 @@ namespace Huge.Ink
         {
             ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
         }
+    }
+
+    public class StepSnapshot
+    {
+        public string StateJson { get; init; }
+        public string CurrentLine { get; init; }
+        public string LottieUrl { get; init; }
+        public string ImageUrl { get; init; }
     }
 }
