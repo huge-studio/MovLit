@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
-using Oqtane.Services;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Huge.Ink
 {
@@ -48,33 +49,27 @@ namespace Huge.Ink
             var uri = new Uri(NavigationManager.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             PageState.ReturnUrl = query.Get("returnUrl") ?? "/";
+        }
 
-            // fetch story
+        protected override async Task OnParametersSetAsync()
+        {
+            if (!ShouldRender()) return;
             (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
-
-            // if editor is already ready, push value now
-            if (_editorReady && !_valueApplied)
-            {
-                await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story?.InkJson ?? string.Empty);
-                _valueApplied = true;
-            }
-            else
-            {
-                StateHasChanged(); // let OnAfterRender run again
-            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            // Only initialize once per component lifetime
-            if (firstRender)
+            if (!string.IsNullOrEmpty(_inkTextArea.Id))
             {
-                await JSRuntime.InvokeVoidAsync("inkEditor.init", _inkTextArea, new { lineNumbers = true });
-                _editorReady = true;
-                if (_story != null)
+                if (!_editorReady)
                 {
-                    await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story.InkJson ?? string.Empty);
+                    _editorReady = true;
+                    await JSRuntime.InvokeVoidAsync("inkEditor.init", _inkTextArea, new { lineNumbers = true });
+                }
+                if (_editorReady && _story is not null && !_valueApplied)
+                {
                     _valueApplied = true;
+                    await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story.InkJson ?? string.Empty);
                 }
             }
         }
@@ -198,7 +193,10 @@ namespace Huge.Ink
             }
             catch (Exception ex)
             {
-                _errorMessage = ex.Message;
+                _errorMessage = Regex.Replace(
+                                ex.Message,
+                                @"(?i)\bline\s+(\d+)",
+                                m => $"line {Math.Max(1, int.Parse(m.Groups[1].Value) - 8)}");
                 StateHasChanged();
                 return false;
             }
