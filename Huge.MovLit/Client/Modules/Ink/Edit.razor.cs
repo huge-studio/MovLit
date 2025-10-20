@@ -66,21 +66,16 @@ namespace Huge.Ink
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (_story is not null && !_valueApplied)
+            // Only initialize once per component lifetime
+            if (firstRender)
             {
-                // always init, even if story is null
                 await JSRuntime.InvokeVoidAsync("inkEditor.init", _inkTextArea, new { lineNumbers = true });
                 _editorReady = true;
-
-                // set whatever we have (empty if _story is null)
-                await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story?.InkJson ?? string.Empty);
-                _valueApplied = true;
-            }
-            else if (_editorReady && !_valueApplied && _story != null)
-            {
-                // covers the race where story finished after first render
-                await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story.InkJson);
-                _valueApplied = true;
+                if (_story != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story.InkJson ?? string.Empty);
+                    _valueApplied = true;
+                }
             }
         }
 

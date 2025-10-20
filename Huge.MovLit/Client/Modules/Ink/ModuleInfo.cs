@@ -33,6 +33,8 @@ namespace Huge.Ink
                 new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js" },
                 new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js" },
                 new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/keymap/sublime.min.js" },
+                // add this next to your other CodeMirror resources
+                new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/mode/simple.min.js" },
                 // Module interop to wire CodeMirror
                 new Resource { ResourceType = ResourceType.Script, Location = ResourceLocation.Body, Level = ResourceLevel.Site, Url = "~/Module.js" }
             }
