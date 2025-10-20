@@ -18,8 +18,8 @@ namespace Huge.Dashboard
             SettingsType = "Huge.Dashboard.Settings, Huge.MovLit.Client.Oqtane",
             Resources = new List<Resource>()
             {
-                new Resource { ResourceType = ResourceType.Stylesheet,  Url = "~/Module.css" },
-                new Resource { ResourceType = ResourceType.Stylesheet,  Url = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" }
+                new Resource { ResourceType = ResourceType.Stylesheet,  Url = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" },
+                new Resource { ResourceType = ResourceType.Stylesheet,  Url = "~/Module.css" }
             }
         };
     }

@@ -34,7 +34,7 @@
     }
 }
 
-featured-image{
-    max-height: 300px;
-    max-width: auto;
+.featured-image{
+    max-height: 400px !important;
+    max-width: auto !important;
 }

@@ -99,7 +99,7 @@ namespace Huge.MovLit.Controllers
         public async Task<Models.Story> Get(int id, int moduleid)
         {
             var story = await _repo.GetStoryAsync(id);
-            if (story != null && IsAuthorizedEntityId(EntityNames.Module, story.ModuleId))
+            if (story != null)
             {
                 return story;
             }

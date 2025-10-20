@@ -11,8 +11,8 @@ namespace Huge.Ink
         {
             if (story.variablesState.GlobalVariableExistsWithName("initialUrl") && string.IsNullOrWhiteSpace(story.variablesState["initialUrl"] as string))
             {
-                var lottie = siteState.Properties.Lottie;
-                var image = siteState.Properties.Image;
+                var lottie = siteState?.Properties?.Lottie;
+                var image = siteState?.Properties?.Image;
 
                 var source = !string.IsNullOrWhiteSpace(lottie) ? lottie
                            : !string.IsNullOrWhiteSpace(image) ? image
@@ -29,7 +29,7 @@ namespace Huge.Ink
         {
             if (story.variablesState.GlobalVariableExistsWithName("player_name") && string.IsNullOrWhiteSpace(story.variablesState["player_name"] as string))
             {
-                var playerName = pageState.User.Username;
+                var playerName = pageState?.User?.Username;
                 if (!string.IsNullOrWhiteSpace(playerName))
                 {
                     story.variablesState["player_name"] = playerName;

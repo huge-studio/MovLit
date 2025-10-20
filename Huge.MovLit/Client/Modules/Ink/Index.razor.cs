@@ -28,7 +28,6 @@ namespace Huge.Ink
 
         private MarkupString _currentLine = new MarkupString();
         private List<CustomInkChoice> _currentChoices = new();
-        private List<string> _inkState = new();
 
         private bool _hasNext = false;
         private bool _hasPrevious = false;
@@ -49,7 +48,7 @@ namespace Huge.Ink
         private string _returnUrl;
         private string _editUrl;
 
-        private readonly List<StepSnapshot> _history = new();
+        private List<StepSnapshot> _history = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -107,7 +106,7 @@ namespace Huge.Ink
                 // metrics after potential view logged in OnInitializedAsync
                 await LoadMetricsAsync();
 
-                _inkState = new();
+                _history = new();
                 if (_story.canContinue)
                 {
                     Next();
@@ -294,50 +293,60 @@ namespace Huge.Ink
                     allLines.Add(_story.Continue());
                     if (_story.currentTags is { Count: > 0 }) allTags.AddRange(_story.currentTags);
                 }
+                //Set the current line
                 _currentLine = ProcessStoryText(string.Concat(allLines));
-                _inkState.Add(_story.state.ToJson());
             }
-
+            // Set media in the site state
             ProcessTags(allTags);
 
+            //Mutate the current choice and store in our history
+            _currentChoices = _story.currentChoices
+                                    .Select(choice => new CustomInkChoice
+                                    {
+                                        Text = choice.text,
+                                        Tags = choice.tags,
+                                        Index = choice.index,
+                                        PathStringOnChoice = choice.pathStringOnChoice
+                                    })
+                                    .ToList();
+
+            // Store the current ink state
             _history.Add(new StepSnapshot
             {
                 StateJson = _story.state.ToJson(),
                 CurrentLine = string.Concat(allLines),
+                CurrentChoices = _currentChoices,
                 LottieUrl = SiteState.Properties.Lottie,
                 ImageUrl = SiteState.Properties.Image
             });
-        }
 
-        public void SetInitialUrl()
-        {
-            var lottie = SiteState.Properties.Lottie;
-            var image = SiteState.Properties.Image;
-
-            var source = !string.IsNullOrWhiteSpace(lottie) ? lottie
-                       : !string.IsNullOrWhiteSpace(image) ? image
-                       : null;
-
-            if (!string.IsNullOrWhiteSpace(source))
-            {
-                _story.variablesState["initialUrl"] = source;
-            }
+            _hasNext = _story.canContinue;
+            _hasPrevious = _history.Count > 1 && _settingsVM.HasPrevious;
+            _hasFinish = !_hasNext && _currentChoices.Count == 0;
         }
 
         private void Previous()
         {
             if (_story == null) return;
-            if (_history.Count <= 1) return; // already at the first step
+            if (_history.Count <= 1)
+            {
+                _hasPrevious = false;
+            }
 
             // Pop current step from both stacks (keep them in lockstep)
             _history.RemoveAt(_history.Count - 1);
-            _inkState.RemoveAt(_inkState.Count - 1);
 
             // Snapshot to restore
             var snap = _history[^1];
+            if (snap == null) return;
+
+            if (snap?.CurrentChoices != null && snap?.CurrentChoices?.Count > 0)
+            {
+                _currentChoices = snap.CurrentChoices;
+            }
 
             // Restore Ink state
-            var stateJson = _inkState.LastOrDefault();
+            var stateJson = snap.StateJson;
             if (!string.IsNullOrEmpty(stateJson))
             {
                 _story.state.LoadJson(stateJson);
@@ -349,8 +358,14 @@ namespace Huge.Ink
 
             //Set the current line
             _currentLine = ProcessStoryText(snap.CurrentLine);
-            _hasPrevious = _history.Count > 1 ? true : false;
-
+            if (_history.Count > 1 && _settingsVM.HasPrevious)
+            {
+                _hasPrevious = true;
+            }
+            else
+            {
+                _hasPrevious = false;
+            }
         }
 
 
@@ -381,25 +396,6 @@ namespace Huge.Ink
                 {
                     SiteState.Properties.Image = imageUrl;
                 }
-            }
-
-            _currentChoices = _story.currentChoices
-                                    .Select(choice => new CustomInkChoice
-                                    {
-                                        Text = choice.text,
-                                        Tags = choice.tags,
-                                        Index = choice.index,
-                                        PathStringOnChoice = choice.pathStringOnChoice
-                                    })
-                                    .ToList();
-
-            _hasNext = _story.canContinue;
-            _hasPrevious = _inkState.Count > 1 && _settingsVM.HasPrevious;
-            _hasFinish = !_hasNext && _currentChoices.Count == 0;
-
-            if (string.IsNullOrEmpty(_currentLine.Value) && !_hasNext && _currentChoices.Count == 0)
-            {
-                return;
             }
 
             StateHasChanged();
@@ -434,6 +430,7 @@ namespace Huge.Ink
     {
         public string StateJson { get; init; }
         public string CurrentLine { get; init; }
+        public List<CustomInkChoice> CurrentChoices { get; init; } = new();
         public string LottieUrl { get; init; }
         public string ImageUrl { get; init; }
     }
