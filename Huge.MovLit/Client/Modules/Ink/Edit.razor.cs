@@ -20,6 +20,7 @@ namespace Huge.Ink
         [Inject] public NavigationManager NavigationManager { get; set; }
         [Inject] public StoryService StoryService { get; set; }
         [Inject] public IFileService FileService { get; set; }
+        [Inject] public IJSRuntime JSRuntime { get; set; }
 
         public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
@@ -28,21 +29,13 @@ namespace Huge.Ink
         public override string Title => "Manage Story";
 
         private Huge.MovLit.Models.Story _story;
-
-
+        private bool _editorReady;
+        private bool _valueApplied;
 
         private ElementReference form;
         private bool validated = false;
+        private ElementReference _inkTextArea;
 
-        private int _id;
-        private string _name;
-        private string _createdby;
-        private DateTime _createdon;
-        private string _modifiedby;
-        private DateTime _modifiedon;
-
-        // Form state
-        // replaced by direct binding to _story
         private string _returnUrl;
         private string _errorMessage;
 
@@ -51,12 +44,44 @@ namespace Huge.Ink
 
         protected override async Task OnInitializedAsync()
         {
+            // parse query
             var uri = new Uri(NavigationManager.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             PageState.ReturnUrl = query.Get("returnUrl") ?? "/";
 
-            // Load existing story for this module (if any)
+            // fetch story
             (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+
+            // if editor is already ready, push value now
+            if (_editorReady && !_valueApplied)
+            {
+                await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story?.InkJson ?? string.Empty);
+                _valueApplied = true;
+            }
+            else
+            {
+                StateHasChanged(); // let OnAfterRender run again
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (_story is not null && !_valueApplied)
+            {
+                // always init, even if story is null
+                await JSRuntime.InvokeVoidAsync("inkEditor.init", _inkTextArea, new { lineNumbers = true });
+                _editorReady = true;
+
+                // set whatever we have (empty if _story is null)
+                await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story?.InkJson ?? string.Empty);
+                _valueApplied = true;
+            }
+            else if (_editorReady && !_valueApplied && _story != null)
+            {
+                // covers the race where story finished after first render
+                await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story.InkJson);
+                _valueApplied = true;
+            }
         }
 
         private async Task OnCoverSelected(int fileId)
@@ -112,6 +137,14 @@ namespace Huge.Ink
                     AddModuleMessage("No story exists for this module. Visit the Ink module once to create the starter story, then return to edit.", MessageType.Warning);
                     return;
                 }
+                // pull latest content from CodeMirror (if active)
+                try
+                {
+                    var current = await JSRuntime.InvokeAsync<string>("inkEditor.getValue", _inkTextArea);
+                    // Always assign so clearing the editor persists as empty string
+                    _story.InkJson = current ?? string.Empty;
+                }
+                catch { }
                 if (!string.IsNullOrWhiteSpace(_story.InkJson))
                 {
                     if (!CanCompileStory())
