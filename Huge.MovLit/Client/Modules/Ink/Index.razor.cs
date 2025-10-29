@@ -340,7 +340,7 @@ namespace Huge.Ink
             var snap = _history[^1];
             if (snap == null) return;
 
-            if (snap?.CurrentChoices != null && snap?.CurrentChoices?.Count > 0)
+            if (snap.CurrentChoices is { Count: > 0 })
             {
                 _currentChoices = snap.CurrentChoices;
             }
