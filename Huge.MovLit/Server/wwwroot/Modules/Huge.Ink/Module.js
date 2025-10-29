@@ -22,7 +22,7 @@ window.inkEditor = (function () {
       lineNumbers: true,
       mode: 'ink',
       lineWrapping: true,
-      theme: 'default'
+      theme: 'default',
     }, options || {}));
     editors.set(textarea, cm);
     return true;

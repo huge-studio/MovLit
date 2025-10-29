@@ -11,6 +11,7 @@ using Oqtane.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -21,7 +22,6 @@ namespace Huge.Ink
         [Inject] public NavigationManager NavigationManager { get; set; }
         [Inject] public StoryService StoryService { get; set; }
         [Inject] public IFileService FileService { get; set; }
-        [Inject] public IJSRuntime JSRuntime { get; set; }
 
         public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
@@ -33,8 +33,6 @@ namespace Huge.Ink
         private bool _editorReady;
         private bool _valueApplied;
 
-        private ElementReference form;
-        private bool validated = false;
         private ElementReference _inkTextArea;
 
         private string _returnUrl;
@@ -43,7 +41,7 @@ namespace Huge.Ink
         private readonly List<string> _allTags = StoryTags.GetAllTags;
 
 
-        protected override async Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
             // parse query
             var uri = new Uri(NavigationManager.Uri);
@@ -54,7 +52,18 @@ namespace Huge.Ink
         protected override async Task OnParametersSetAsync()
         {
             if (!ShouldRender()) return;
-            (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+            try
+            {
+                (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+                if (_story is null || code == HttpStatusCode.OK)
+                {
+                    throw new Exception($"Story returned null for edit action");
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError($"Error retrieving Story: {ex.Message}");
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -86,10 +95,7 @@ namespace Huge.Ink
             }
             catch
             {
-                if (_story != null)
-                {
-                    _story.CoverArtUrl = $"/Files/{fileId}";
-                }
+                await logger.LogError($"Error retrieving file {fileId} for cover art selection");
             }
         }
 
@@ -124,7 +130,7 @@ namespace Huge.Ink
             {
                 if (_story == null)
                 {
-                    AddModuleMessage("No story exists for this module. Visit the Ink module once to create the starter story, then return to edit.", MessageType.Warning);
+                    AddModuleMessage("No story exists for this module. Visit the Ink module once to create the starter story, then return to edit action.", MessageType.Warning);
                     return;
                 }
                 // pull latest content from CodeMirror (if active)
@@ -134,7 +140,10 @@ namespace Huge.Ink
                     // Always assign so clearing the editor persists as empty string
                     _story.InkJson = current ?? string.Empty;
                 }
-                catch { }
+                catch
+                {
+                    await logger.LogError($"Error retrieving Ink JSON from editor");
+                }
                 if (!string.IsNullOrWhiteSpace(_story.InkJson))
                 {
                     if (!CanCompileStory())
