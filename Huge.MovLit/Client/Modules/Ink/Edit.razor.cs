@@ -55,7 +55,7 @@ namespace Huge.Ink
             try
             {
                 (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
-                if (_story is null || code == HttpStatusCode.OK)
+                if (_story is null || code != HttpStatusCode.OK)
                 {
                     throw new Exception($"Story returned null for edit action");
                 }
