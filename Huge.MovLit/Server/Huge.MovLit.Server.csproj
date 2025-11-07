@@ -8,10 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="wwwroot\Modules\Huge.Dashboard\Module.css" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Client\Huge.MovLit.Client.csproj" />
 		<ProjectReference Include="..\Shared\Huge.MovLit.Shared.csproj" />
 	</ItemGroup>
@@ -21,9 +17,6 @@
 		<!-- Fundamental Blazor packages -->
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.9" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Include="wwwroot\Modules\Huge.Dashboard\Module.css" />
 	</ItemGroup>
 	
 </Project>

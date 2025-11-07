@@ -1,4 +1,4 @@
-/* Blur the backdrop on mobile when open */
+﻿﻿ /* Blur the backdrop on mobile when open */
 .offcanvas-backdrop.show {
     backdrop-filter: blur(4px);
     background-color: rgba(0,0,0,.2);
@@ -28,13 +28,13 @@
 @media (min-width: 992px) {
     .sidebar {
         position: sticky;
-        top: 125px; 
-        height: auto; 
-        overflow: auto; 
+        top: 125px;
+        height: auto;
+        overflow: auto;
     }
 }
 
-.featured-image{
-    max-height: 400px;
-    width: auto;
+.featured-image {
+    max-width: 250px !important;
+    height: auto !important;
 }
