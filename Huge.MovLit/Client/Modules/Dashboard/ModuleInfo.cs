@@ -16,6 +16,7 @@ namespace Huge.Dashboard
             ReleaseVersions = "1.0.0",
             Dependencies = "Huge.MovLit.Shared.Oqtane",
             SettingsType = "Huge.Dashboard.Settings, Huge.MovLit.Client.Oqtane",
+            PackageName = "Huge.MovLit",
             Resources = new List<Resource>()
             {
                 new Resource { ResourceType = ResourceType.Stylesheet,  Url = "~/Module.css" },
