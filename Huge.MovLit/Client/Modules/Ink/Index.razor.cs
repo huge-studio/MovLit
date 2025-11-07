@@ -106,7 +106,6 @@ namespace Huge.Ink
                 // metrics after potential view logged in OnInitializedAsync
                 await LoadMetricsAsync();
 
-                _history = new();
                 if (_story.canContinue)
                 {
                     Next();
