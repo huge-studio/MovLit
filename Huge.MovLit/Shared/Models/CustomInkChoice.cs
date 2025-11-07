@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Huge.MovLit.Models
 {
-    [DebuggerDisplay("\"{Text}\" Tags:[{(Tags?.Count==1?Tags[0]:Tags?.Count)}] Index:{Index}")]
+    [DebuggerDisplay("\"{Text}\" Tags:[{(Tags?.Count == 1 ? Tags[0] : (Tags?.Count ?? 0).ToString())}] Index:{Index}")]
     public class CustomInkChoice
     {
         public string Text { get; set; }
