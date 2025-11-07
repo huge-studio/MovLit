@@ -1,4 +1,4 @@
-﻿/* Blur the backdrop on mobile when open */
+/* Blur the backdrop on mobile when open */
 .offcanvas-backdrop.show {
     backdrop-filter: blur(4px);
     background-color: rgba(0,0,0,.2);
