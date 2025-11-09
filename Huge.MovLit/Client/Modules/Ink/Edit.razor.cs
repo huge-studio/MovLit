@@ -140,9 +140,9 @@ namespace Huge.Ink
                     // Always assign so clearing the editor persists as empty string
                     _story.InkJson = current ?? string.Empty;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    await logger.LogError($"Error retrieving Ink JSON from editor");
+                    await logger.LogError($"Error retrieving Ink JSON from editor: {ex.Message}");
                 }
                 if (!string.IsNullOrWhiteSpace(_story.InkJson))
                 {
