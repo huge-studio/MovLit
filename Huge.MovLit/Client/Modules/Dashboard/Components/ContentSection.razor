@@ -5,7 +5,7 @@
 {
     <div class="d-flex align-items-center mb-2">
         <h4 class="m-0 me-auto">@SectionTitle</h4>
-        <a class="btn btn-outline-primary btn-sm col-2 disabled" aria-disabled="true">@ActionText</a>
+        <a class="btn btn-outline-primary btn-sm col-2" style="cursor:pointer;" @onclick="NavigateToBrowse">@ActionText</a>
     </div>
 
     @if (_stories is null || _stories.Count == 0)
@@ -76,7 +76,7 @@ else
 {
     <div class="d-flex align-items-center mb-2">
         <h5 class="m-0 me-auto">@SectionTitle</h5>
-        <a class="btn btn-outline-primary btn-sm col-2 disabled" aria-disabled="true">@ActionText</a>
+        <a class="btn btn-outline-primary btn-sm col-2" style="cursor:pointer;" @onclick="NavigateToBrowse">@ActionText</a>
     </div>
 
     @if (_stories is null || _stories.Count == 0)

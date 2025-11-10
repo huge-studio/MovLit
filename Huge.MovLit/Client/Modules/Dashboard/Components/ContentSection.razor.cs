@@ -66,5 +66,12 @@ namespace Huge.Dashboard
                 await logger.LogError(ex, "Error navigating to page", ex.Message);
             }
         }
+
+        private void NavigateToBrowse()
+        {
+            // route with category derived from section title
+            var slug = DashboardFilters.ToSlug(SectionTitle);
+            NavigationManager.NavigateTo($"/dashboard/browse?category={slug}");
+        }
     }
 }

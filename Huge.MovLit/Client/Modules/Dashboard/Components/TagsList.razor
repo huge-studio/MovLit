@@ -9,15 +9,32 @@
         @foreach (var tag in _tags.Take(Count))
         {
             <div class="col">
-                <a class="disabled link-body-secondary h5 d-inline-block" style="text-decoration:none;">@tag</a>
+                <a class="link-body-secondary h5 d-inline-block" style="text-decoration:none;cursor:pointer;" @onclick="(() => GoTag(tag))">@tag</a>
             </div>
         }
         @if (ShowBrowseAllLink)
         {
             <div class="col-12">
-                <a class="disabled btn btn-primary btn-sm d-flex align-items-center justify-content-center"><span>Browse all tags</span><span class="bi bi-arrow-right"></span></a>
+                <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" @onclick="GoAllTags" style="cursor:pointer;">
+                    <span>Browse all tags</span>
+                    <span class="bi bi-arrow-right"></span>
+                </button>
             </div>
         }
     </div>
 </div>
+
+@code {
+    void NavigateToTag(string tag)
+    {
+        NavigationManager.NavigateTo($"/dashboard/browse?tag={Uri.EscapeDataString(tag)}");
+    }
+
+    void NavigateToAllTags()
+    {
+        // ensure browse page loads in tag mode without a pre-selected tag
+        NavigationManager.NavigateTo("/dashboard/browse?mode=tag");
+    }
+}
+
 

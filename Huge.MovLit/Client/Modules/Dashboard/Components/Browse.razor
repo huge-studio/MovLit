@@ -1,0 +1,104 @@
+@namespace Huge.Dashboard
+@inherits Oqtane.Modules.ModuleBase
+@using Huge.MovLit.Enums
+
+<h3 class="mb-3 d-flex align-items-center gap-2 justify-content-start">
+    <button class="btn btn-sm btn-outline-secondary" type="button" @onclick="GoBack"><i class="bi bi-arrow-left"></i> Back</button>
+    <span>Browse Stories</span>
+</h3>
+
+<div class="browse-wrapper">
+    <!-- Filters + Search on same level -->
+    <div class="row g-3 mb-3 browse-center">
+        <!-- Filter Section -->
+        <div class="col-12 col-md-6 col-lg-6">
+            <div class="rounded-4 border shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center gap-2 w-100 flex-nowrap">
+                    <label class="form-label small m-0" style="min-width:60px;">Filter</label>
+                    <select class="form-select form-select-sm" style="max-width:120px;" value="@(_filterByTag ? "tag" : "category")" @onchange="OnModeChanged">
+                        <option value="category">Category</option>
+                        <option value="tag">Tag</option>
+                    </select>
+                    @if (!_filterByTag)
+                    {
+                        <select class="form-select form-select-sm flex-grow-1" value="@_categorySlug" @onchange="OnCategoryChanged">
+                            <option value="fresh">Fresh</option>
+                            <option value="trending">Trending</option>
+                            <option value="top">Top</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <select class="form-select form-select-sm flex-grow-1" value="@_selectedTag" @onchange="OnTagChanged">
+                            <option value="">Tag...</option>
+                            @foreach (var tag in Huge.MovLit.Enums.StoryTags.GetAllTags)
+                            {
+                                <option value="@tag">@tag</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="col-12 col-md-6 col-lg-6">
+            <div class="rounded-4 border shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center gap-2 w-100 flex-nowrap">
+                    <label class="form-label small m-0" style="min-width:60px;">Search</label>
+                    <div class="input-group input-group-sm w-100">
+                        <input class="form-control" placeholder="Search title, description, or tag" value="@_search" @oninput="OnSearchChange" />
+                        @if (!string.IsNullOrWhiteSpace(_search))
+                        {
+                            <button class="btn btn-outline-secondary" type="button" title="Clear" @onclick="ClearSearch"><span class="bi bi-x"></span></button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="browse-center">Loading...</div>
+    }
+    else if (_stories == null || _stories.Count == 0)
+    {
+        <div class="alert alert-warning browse-center">No stories found.</div>
+    }
+    else
+    {
+        <div class="browse-list">
+            <!-- Center the card grid within its column -->
+            <div class="d-flex justify-content-center">
+                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3 w-100 browse-center">
+                    @foreach (var s in _stories)
+                    {
+                        <div class="col" style="cursor:pointer;" @onclick="() => NavigateToStory(s.PageId)">
+                            <div class="card h-100 shadow-sm">
+                                <img src="@s.CoverArtUrl" class="card-img-top object-fit-cover" alt="@s.Title" style="height:180px;" />
+                                <div class="card-body p-2">
+                                    <div class="fw-semibold text-truncate" title="@s.Title">@s.Title</div>
+                                    <div class="small text-muted text-truncate" title="@s.Description">@s.Description</div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 pt-0 d-flex justify-content-between">
+                                    <span class="badge rounded-pill bg-secondary">by @s.AuthorName</span>
+                                    @if (s.UpvoteCount > 0)
+                                    {
+                                        <span class="badge text-bg-secondary ms-1"><i class="bi bi-heart-fill" style="color:red;"></i> @s.UpvoteCount</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between mt-4 browse-pagination browse-center">
+            <button class="btn btn-sm btn-outline-secondary" disabled="@(_page == 1)" @onclick="PrevPage">Prev</button>
+            <div class="small">Page @_page</div>
+            <button class="btn btn-sm btn-outline-secondary" disabled="@(!_hasMore)" @onclick="NextPage">Next</button>
+        </div>
+    }
+</div>

@@ -14,30 +14,47 @@
 }
 else if (!_loading)
 {
-    <div class="container-fluid py-3 main-container">
-        <div class="row g-4">
-            <!-- Sidebar -->
-            <Sidebar />
+    @if (_isBrowse)
+    {
+        <div class="container-fluid py-3 main-container">
+            <div class="row g-4">
+                <!-- Sidebar -->
+                <Sidebar />
 
-            <!-- Main content -->
-            <div class="col-12 col-lg-8">
-                @if (ShowHero)
-                {
-                    <Hero />
-                }
-
-                @if (Sections?.Count > 0)
-                {
-                    @foreach (var s in Sections)
-                    {
-                        if (Sections.IndexOf(s) != 0)
-                        {
-                            <hr class="my-5" />
-                        }
-                        <ContentSection SectionTitle="@s.Title" ActionText="@s.ActionText" Cards="@s.Cards" Horizontal="@s.Horizontal" />
-                    }
-                }
+                <!-- Main content -->
+                <div class="col-12 col-lg-8">
+                    <Browse />
+                </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="container-fluid py-3 main-container">
+            <div class="row g-4">
+                <!-- Sidebar -->
+                <Sidebar />
+
+                <!-- Main content -->
+                <div class="col-12 col-lg-8">
+                    @if (ShowHero)
+                    {
+                        <Hero />
+                    }
+
+                    @if (Sections?.Count > 0)
+                    {
+                        @foreach (var s in Sections)
+                        {
+                            if (Sections.IndexOf(s) != 0)
+                            {
+                                <hr class="my-5" />
+                            }
+                            <ContentSection SectionTitle="@s.Title" ActionText="@s.ActionText" Cards="@s.Cards" Horizontal="@s.Horizontal" />
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
 }

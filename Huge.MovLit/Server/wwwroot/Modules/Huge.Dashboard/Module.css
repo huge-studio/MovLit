@@ -1,4 +1,8 @@
-﻿﻿ /* Blur the backdrop on mobile when open */
+﻿html{
+    height: 100dvh
+}
+
+/* Blur the backdrop on mobile when open */
 .offcanvas-backdrop.show {
     backdrop-filter: blur(4px);
     background-color: rgba(0,0,0,.2);
@@ -37,4 +41,34 @@
 .featured-image {
     max-width: 250px !important;
     height: auto !important;
+}
+
+/* Centering helpers for Browse */
+.browse-wrapper .browse-center {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Container to allow sticky bottom inside module area */
+.browse-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 75vh; /* enough height to enable sticky behavior */
+}
+.browse-list {
+    flex: 1 1 auto;
+}
+.browse-pagination {
+    position: sticky; /* sticks within browse-wrapper */
+    bottom: 0;
+    z-index: 1020;
+    background: var(--bs-body-bg);
+    border-top: 1px solid var(--bs-border-color);
+    padding: .75rem 1rem;
+}
+
+/* Fallback: if sticky not supported, we can optionally enable fixed mode on very small screens */
+@supports not (position: sticky) {
+    .browse-pagination { position: fixed; left: 0; right: 0; bottom: 0; }
 }
