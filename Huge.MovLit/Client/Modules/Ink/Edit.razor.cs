@@ -5,13 +5,15 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
-using Oqtane.Services;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Huge.Ink
 {
@@ -28,35 +30,57 @@ namespace Huge.Ink
         public override string Title => "Manage Story";
 
         private Huge.MovLit.Models.Story _story;
+        private bool _editorReady;
+        private bool _valueApplied;
 
+        private ElementReference _inkTextArea;
 
-
-        private ElementReference form;
-        private bool validated = false;
-
-        private int _id;
-        private string _name;
-        private string _createdby;
-        private DateTime _createdon;
-        private string _modifiedby;
-        private DateTime _modifiedon;
-
-        // Form state
-        // replaced by direct binding to _story
         private string _returnUrl;
         private string _errorMessage;
 
         private readonly List<string> _allTags = StoryTags.GetAllTags;
 
 
-        protected override async Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
+            // parse query
             var uri = new Uri(NavigationManager.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             PageState.ReturnUrl = query.Get("returnUrl") ?? "/";
+        }
 
-            // Load existing story for this module (if any)
-            (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+        protected override async Task OnParametersSetAsync()
+        {
+            if (!ShouldRender()) return;
+            try
+            {
+                (_story, var code) = await StoryService.GetForModuleAsync(ModuleState.ModuleId);
+                if (_story is null || code != HttpStatusCode.OK)
+                {
+                    throw new Exception($"Story returned null for edit action");
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError($"Error retrieving Story: {ex.Message}");
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (!string.IsNullOrEmpty(_inkTextArea.Id))
+            {
+                if (!_editorReady)
+                {
+                    _editorReady = true;
+                    await JSRuntime.InvokeVoidAsync("inkEditor.init", _inkTextArea, new { lineNumbers = true });
+                }
+                if (_editorReady && _story is not null && !_valueApplied)
+                {
+                    _valueApplied = true;
+                    await JSRuntime.InvokeVoidAsync("inkEditor.setValue", _inkTextArea, _story.InkJson ?? string.Empty);
+                }
+            }
         }
 
         private async Task OnCoverSelected(int fileId)
@@ -71,10 +95,7 @@ namespace Huge.Ink
             }
             catch
             {
-                if (_story != null)
-                {
-                    _story.CoverArtUrl = $"/Files/{fileId}";
-                }
+                await logger.LogError($"Error retrieving file {fileId} for cover art selection");
             }
         }
 
@@ -109,8 +130,19 @@ namespace Huge.Ink
             {
                 if (_story == null)
                 {
-                    AddModuleMessage("No story exists for this module. Visit the Ink module once to create the starter story, then return to edit.", MessageType.Warning);
+                    AddModuleMessage("No story exists for this module. Visit the Ink module once to create the starter story, then return to edit action.", MessageType.Warning);
                     return;
+                }
+                // pull latest content from CodeMirror (if active)
+                try
+                {
+                    var current = await JSRuntime.InvokeAsync<string>("inkEditor.getValue", _inkTextArea);
+                    // Always assign so clearing the editor persists as empty string
+                    _story.InkJson = current ?? string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError($"Error retrieving Ink JSON from editor: {ex.Message}");
                 }
                 if (!string.IsNullOrWhiteSpace(_story.InkJson))
                 {
@@ -170,7 +202,10 @@ namespace Huge.Ink
             }
             catch (Exception ex)
             {
-                _errorMessage = ex.Message;
+                _errorMessage = Regex.Replace(
+                                ex.Message,
+                                @"(?i)\bline\s+(\d+)",
+                                m => $"line {Math.Max(1, int.Parse(m.Groups[1].Value) - 8)}");
                 StateHasChanged();
                 return false;
             }

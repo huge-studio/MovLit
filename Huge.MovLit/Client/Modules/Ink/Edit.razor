@@ -57,7 +57,7 @@ else
                 <select id="tags" multiple class="form-select" @onchange="OnTagsChanged">
                     @foreach (var t in _allTags)
                     {
-                        <option value="@t" selected="@(_story?.Tags?.Contains(t) == true)">@t</option>
+                        <option value="@t">@t</option>
                     }
                 </select>
                 <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
@@ -69,7 +69,7 @@ else
         <div class="row mb-2 align-items-center">
             <Label For="ink" Class="col-sm-3">Ink</Label>
             <div class="col-sm-9">
-                <textarea id="ink" rows="10" class="form-control" placeholder="// Ink content here" @bind="_story.InkJson"></textarea>
+                <textarea id="ink" rows="10" class="form-control" placeholder="// Ink content here" @ref="_inkTextArea"></textarea>
             </div>
         </div>
         @if (!string.IsNullOrEmpty(_errorMessage))
@@ -82,3 +82,4 @@ else
         </div>
     </div>
 }
+.
