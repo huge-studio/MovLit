@@ -105,8 +105,8 @@ namespace Huge.MovLit.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Story Get Attempt {StoryId} {ModuleId}", id, moduleid);
-                HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Failed Story Get Attempt {StoryId} {ModuleId}", id, moduleid);
+                HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.NotFound;
                 return null;
             }
         }
