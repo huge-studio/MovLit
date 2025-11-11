@@ -1,6 +1,7 @@
 ﻿using Huge.MovLit.Enums;
 using Huge.MovLit.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using Oqtane.Modules;
 using Oqtane.Services;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Huge.Dashboard
 {
-    public partial class Browse : ModuleBase
+    public partial class Browse : ModuleBase, IDisposable
     {
 
         [Inject] StoryService StoryService { get; set; }
@@ -30,18 +31,40 @@ namespace Huge.Dashboard
         private bool _filterByTag = false;
         private string _selectedTag = string.Empty;
 
+        protected override void OnInitialized()
+        {
+            // react to querystring changes (eg. clicking tags in sidebar)
+            Nav.LocationChanged += OnLocationChanged;
+            base.OnInitialized();
+        }
+
+        private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                ReadQuery(e.Location);
+                await LoadAsync();
+                await InvokeAsync(StateHasChanged);
+            });
+        }
+
         protected override async Task OnParametersSetAsync()
         {
-            // read query params manually
-            var uri = new Uri(Nav.Uri);
+            ReadQuery(Nav.Uri);
+            await LoadAsync();
+        }
+
+        private void ReadQuery(string uriStr)
+        {
+            var uri = new Uri(uriStr);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
             var mode = query.Get("mode");
-            if (!string.IsNullOrWhiteSpace(mode) && mode.Equals("tag", StringComparison.OrdinalIgnoreCase))
-            {
-                _filterByTag = true;
-            }
+            _filterByTag = !string.IsNullOrWhiteSpace(mode) && mode.Equals("tag", StringComparison.OrdinalIgnoreCase);
+
             var cval = query.Get("category");
             if (!string.IsNullOrWhiteSpace(cval)) _categorySlug = cval;
+
             var tval = query.Get("tag");
             if (!string.IsNullOrWhiteSpace(tval))
             {
@@ -49,14 +72,23 @@ namespace Huge.Dashboard
                 _selectedTag = tval;
                 _search = string.Empty; // don't mirror tag into search
             }
-            await LoadAsync();
+            else if (!_filterByTag)
+            {
+                // if not tag mode, keep previous selected tag cleared
+                _selectedTag = string.Empty;
+            }
+
+            // reset to first page whenever the source parameters change
+            _page = 1;
         }
 
         private async Task LoadAsync()
         {
             _loading = true;
+            var useAll = _filterByTag || !string.IsNullOrWhiteSpace(_search);
             var filter = DashboardFilters.FromSlug(_categorySlug);
-            (var data, var code) = await StoryService.GetAsync(filter, _pageSize * _page, ModuleState.ModuleId);
+            var take = useAll ? 0 : (_pageSize * _page); // 0 => server returns all
+            (var data, var code) = await StoryService.GetAsync(filter, take, ModuleState.ModuleId, all: useAll);
             var all = data ?? new();
 
             if (_filterByTag && !string.IsNullOrWhiteSpace(_selectedTag))
@@ -70,10 +102,11 @@ namespace Huge.Dashboard
                 all = all.Where(s => (s.Title?.ToLowerInvariant().Contains(term) ?? false) || (s.Description?.ToLowerInvariant().Contains(term) ?? false) || (s.Tags != null && s.Tags.Any(t => t.ToLowerInvariant().Contains(term)))).ToList();
             }
 
-            // slice
+            // slice client-side
             _stories = all.Skip((_page - 1) * _pageSize).Take(_pageSize).ToList();
             _hasMore = all.Count > _page * _pageSize;
             _loading = false;
+            StateHasChanged();
         }
 
         private async Task PrevPage()
@@ -158,6 +191,18 @@ namespace Huge.Dashboard
             {
                 Nav.NavigateTo("/dashboard");
             }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                Nav.LocationChanged -= OnLocationChanged;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error disposing location changed listener.", ex.Message);
+           }
         }
     }
 }

@@ -14,29 +14,19 @@
 }
 else if (!_loading)
 {
-    @if (_isBrowse)
-    {
-        <div class="container-fluid py-3 main-container">
-            <div class="row g-4">
-                <!-- Sidebar -->
-                <Sidebar />
+    <div class="container-fluid py-3 main-container">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <Sidebar />
 
-                <!-- Main content -->
-                <div class="col-12 col-lg-8">
+            <!-- Main content -->
+            <div class="col-12 col-lg-8">
+                @if (_isBrowse)
+                {
                     <Browse />
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="container-fluid py-3 main-container">
-            <div class="row g-4">
-                <!-- Sidebar -->
-                <Sidebar />
-
-                <!-- Main content -->
-                <div class="col-12 col-lg-8">
+                }
+                else
+                {
                     @if (ShowHero)
                     {
                         <Hero />
@@ -53,8 +43,8 @@ else if (!_loading)
                             <ContentSection SectionTitle="@s.Title" ActionText="@s.ActionText" Cards="@s.Cards" Horizontal="@s.Horizontal" />
                         }
                     }
-                </div>
+                }
             </div>
         </div>
-    }
+    </div>
 }

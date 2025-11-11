@@ -21,6 +21,7 @@ namespace Huge.Dashboard
         private string _settingsUrl;
         private bool _loading;
         protected bool _isBrowse;
+        protected string _browseCategory = DashboardFilters.New;
 
         protected List<SectionConfig> Sections { get; set; } = new();
         protected bool ShowHero { get; set; } = false;
@@ -31,9 +32,15 @@ namespace Huge.Dashboard
             _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
             _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
 
-            // detect browse mode from URL
+            // detect inline browse mode via query string
             var uri = new Uri(Nav.Uri);
-            _isBrowse = uri.AbsolutePath.Contains("browse", StringComparison.OrdinalIgnoreCase);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            _isBrowse = !string.IsNullOrWhiteSpace(query.Get("browse"));
+            var cat = query.Get("category");
+            if (!string.IsNullOrWhiteSpace(cat))
+            {
+                _browseCategory = DashboardFilters.FromSlug(cat);
+            }
 
             if (!_isBrowse)
             {

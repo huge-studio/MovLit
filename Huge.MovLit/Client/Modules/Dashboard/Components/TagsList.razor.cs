@@ -18,6 +18,7 @@ namespace Huge.Dashboard
         [Parameter] public bool ShowBrowseAllLink { get; set; } = true;
 
         protected List<string> _tags = new();
+        private string _basePath;
 
         protected override async Task OnInitializedAsync()
         {
@@ -28,14 +29,22 @@ namespace Huge.Dashboard
                 : StoryTags.GetAllTags;
         }
 
+        protected override void OnParametersSet()
+        {
+            if (!ShouldRender()) return;
+
+            _basePath = new Uri(NavigationManager.Uri).GetLeftPart(UriPartial.Path);
+
+        }
+
         private void GoTag(string tag)
         {
-            NavigationManager.NavigateTo($"/dashboard/browse?tag={Uri.EscapeDataString(tag)}");
+            NavigationManager.NavigateTo($"{_basePath}?browse=true&mode=tag&tag={Uri.EscapeDataString(tag)}");
         }
 
         private void GoAllTags()
         {
-            NavigationManager.NavigateTo("/dashboard/browse?mode=tag");
+            NavigationManager.NavigateTo($"{_basePath}?browse=true&mode=tag");
         }
     }
 }

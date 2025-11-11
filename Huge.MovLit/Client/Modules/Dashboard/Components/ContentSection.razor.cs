@@ -69,9 +69,10 @@ namespace Huge.Dashboard
 
         private void NavigateToBrowse()
         {
-            // route with category derived from section title
+            // Add browse query param to current page path and carry category slug
             var slug = DashboardFilters.ToSlug(SectionTitle);
-            NavigationManager.NavigateTo($"/dashboard/browse?category={slug}");
+            var basePath = new Uri(NavigationManager.Uri).GetLeftPart(UriPartial.Path);
+            NavigationManager.NavigateTo($"{basePath}?browse=true&category={Uri.EscapeDataString(slug)}");
         }
     }
 }
