@@ -21,8 +21,6 @@ namespace Huge.MovLit.Enums
 
         public static List<string> GetAllFilters => new() { Trending, New, Top };
 
-        // Slug mapping helpers (used for query parameters)
-        // trending => Trending Stories, fresh => Fresh Stories, top => Top Stories
         public static string ToSlug(string filter)
         {
             if (string.Equals(filter, Trending, StringComparison.OrdinalIgnoreCase)) return "Trending";
