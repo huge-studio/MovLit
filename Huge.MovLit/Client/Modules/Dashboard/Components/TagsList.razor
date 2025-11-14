@@ -26,17 +26,5 @@
     </div>
 </div>
 
-@code {
-    void NavigateToTag(string tag)
-    {
-        NavigationManager.NavigateTo($"/dashboard/browse?tag={Uri.EscapeDataString(tag)}");
-    }
-
-    void NavigateToAllTags()
-    {
-        // ensure browse page loads in tag mode without a pre-selected tag
-        NavigationManager.NavigateTo("/dashboard/browse?mode=tag");
-    }
-}
 
 
