@@ -11,6 +11,7 @@ namespace Huge.MovLit.Enums
         public const string Trending = "Trending Stories";
         public const string New = "Fresh Stories";
         public const string Top = "Top Stories";
+
         //Browse
         public const string Tag = "Tag";
         public const string Category = "Category";

@@ -23,14 +23,14 @@ else if (!_loading)
             <div class="col-12 col-lg-8">
                 @if (_isBrowse)
                 {
-                    <Browse @key="_browseKey" />
+                    <Browse />
                 }
                 else
                 {
                     @if (ShowHero)
                     {
                         <Hero />
-                    }
+                    }           
 
                     @if (Sections?.Count > 0)
                     {

@@ -17,8 +17,8 @@ namespace Huge.Dashboard
         [Inject] IPageService PageService { get; set; }
         [Inject] TagFilterService TagFilter { get; set; }
 
-        private List<Huge.MovLit.Models.Story> _stories = new();
-        private List<Huge.MovLit.Models.Story> _viewStories = new();
+        private List<MovLit.Models.Story> _stories = new();
+        private List<MovLit.Models.Story> _viewStories = new();
 
         private bool _loading = true;
         private int _page = 1;
@@ -28,7 +28,6 @@ namespace Huge.Dashboard
         private string _search = string.Empty;
         private bool _filterByTag = false;
         private string _selectedTag = string.Empty;
-        private bool _dataInitialized = false;
         private string _mode = DashboardFilters.Category;
         private bool _disposed;
 
@@ -38,8 +37,7 @@ namespace Huge.Dashboard
             try
             {
                 var (data, code) = await StoryService.GetAsync(DashboardFilters.FromSlug(_categorySlug), 0, ModuleState.ModuleId, all: true);
-                _stories = data ?? new List<Huge.MovLit.Models.Story>();
-                _dataInitialized = true;
+                _stories = data ?? new List<MovLit.Models.Story>();
             }
             catch (Exception ex)
             {
@@ -80,7 +78,7 @@ namespace Huge.Dashboard
             _filterByTag = wantTag;
             if (!wantTag) _selectedTag = string.Empty;
             _page = 1;
-            BuildViewSlice(); // no navigation, local re-filter
+            BuildViewSlice(); 
         }
 
         protected string CategorySlug
@@ -124,7 +122,6 @@ namespace Huge.Dashboard
 
         private void BuildViewSlice()
         {
-            if (!_dataInitialized) return;
             IEnumerable<Huge.MovLit.Models.Story> working = _stories;
 
             if (!_filterByTag)
@@ -157,30 +154,27 @@ namespace Huge.Dashboard
             _loading = false;
         }
 
-        private Task PrevPage()
+        private void PrevPage()
         {
             if (_page > 1)
             {
                 _page--;
                 BuildViewSlice();
             }
-            return Task.CompletedTask;
         }
 
-        private Task NextPage()
+        private void NextPage()
         {
             if (_hasMore)
             {
                 _page++;
                 BuildViewSlice();
             }
-            return Task.CompletedTask;
         }
 
-        private Task ClearSearch()
+        private void ClearSearch()
         {
             SearchTerm = string.Empty;
-            return Task.CompletedTask;
         }
 
         private Task NavigateToStory(int pageId) => GoToStory(pageId);
@@ -208,7 +202,7 @@ namespace Huge.Dashboard
         {
             if (_disposed) return;
             _disposed = true;
-            try { TagFilter.TagChanged -= OnExternalTagChanged; } catch { }
+            TagFilter.TagChanged -= OnExternalTagChanged;
         }
     }
 }
