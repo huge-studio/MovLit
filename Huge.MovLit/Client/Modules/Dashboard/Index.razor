@@ -23,7 +23,7 @@ else if (!_loading)
             <div class="col-12 col-lg-8">
                 @if (_isBrowse)
                 {
-                    <Browse />
+                    <Browse @key="_browseKey" />
                 }
                 else
                 {

@@ -8,6 +8,8 @@
 		<StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
 		<BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
 		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+		<!-- Re-enable implicit compile items -->
+		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -19,9 +21,15 @@
 	<ItemGroup>
 		<PackageReference Include="Markdig" Version="0.42.0" />
 		<PackageReference Include="Oqtane.Client" Version="6.2.1" />
-		<!-- Fundamental Blazor packages -->
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.9" />
 	</ItemGroup>
 
+	<!-- Remove manual wildcard compile to avoid duplicates -->
+	<ItemGroup>
+		<Compile Remove="Services\TagFilterService.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="Services\TagFilterService.cs" />
+	</ItemGroup>
 </Project>

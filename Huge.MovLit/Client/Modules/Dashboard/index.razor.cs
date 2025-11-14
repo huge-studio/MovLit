@@ -22,6 +22,7 @@ namespace Huge.Dashboard
         private bool _loading;
         protected bool _isBrowse;
         protected string _browseCategory = DashboardFilters.New;
+        protected string _browseKey = Guid.NewGuid().ToString();
 
         protected List<SectionConfig> Sections { get; set; } = new();
         protected bool ShowHero { get; set; } = false;
@@ -35,12 +36,17 @@ namespace Huge.Dashboard
             // detect inline browse mode via query string
             var uri = new Uri(Nav.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var wasBrowse = _isBrowse;
             _isBrowse = !string.IsNullOrWhiteSpace(query.Get("browse"));
             var cat = query.Get("category");
             if (!string.IsNullOrWhiteSpace(cat))
             {
                 _browseCategory = DashboardFilters.FromSlug(cat);
             }
+
+            // if URL changed to a new browse state (eg. different tag), bump key to remount Browse
+            var currentKeySeed = uri.Query ?? string.Empty;
+            _browseKey = ($"{_isBrowse}-{currentKeySeed}");
 
             if (!_isBrowse)
             {

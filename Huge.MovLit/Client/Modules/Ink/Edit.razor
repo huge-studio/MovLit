@@ -54,7 +54,7 @@ else
         <div class="row mb-2 align-items-center">
             <Label For="tags" HelpText="Tag your story with common genres. Hold Ctrl/Cmd to select multiple." Class="col-sm-3">Tags</Label>
             <div class="col-sm-9">
-                <select id="tags" multiple class="form-select" @onchange="OnTagsChanged">
+                <select id="tags" multiple class="form-select" @bind="_selectedTags">
                     @foreach (var t in _allTags)
                     {
                         <option value="@t">@t</option>

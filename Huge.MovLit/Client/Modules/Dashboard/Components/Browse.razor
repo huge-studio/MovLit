@@ -14,23 +14,25 @@
         <div class="col-12 col-md-6 col-lg-6">
             <div class="rounded-4 border shadow-sm p-3 h-100">
                 <div class="d-flex align-items-center gap-2 w-100 flex-nowrap">
-                    <label class="form-label small m-0" style="min-width:60px;">Filter</label>
-                    <select class="form-select form-select-sm" style="max-width:120px;" value="@(_filterByTag ? "tag" : "category")" @onchange="OnModeChanged">
-                        <option value="category">Category</option>
-                        <option value="tag">Tag</option>
+                    <select class="form-select form-select-sm"
+                            style="max-width:120px;"
+                            value="@_mode"
+                            @onchange="OnModeChanged">
+                        <option value="@DashboardFilters.Category">Category</option>
+                        <option value="@DashboardFilters.Tag">Tag</option>
                     </select>
+
                     @if (!_filterByTag)
                     {
-                        <select class="form-select form-select-sm flex-grow-1" value="@_categorySlug" @onchange="OnCategoryChanged">
-                            <option value="fresh">Fresh</option>
-                            <option value="trending">Trending</option>
-                            <option value="top">Top</option>
+                        <select class="form-select form-select-sm flex-grow-1" @bind="CategorySlug">
+                            <option value="Fresh">Fresh</option>
+                            <option value="Trending">Trending</option>
+                            <option value="Top">Top</option>
                         </select>
                     }
                     else
                     {
-                        <select class="form-select form-select-sm flex-grow-1" value="@_selectedTag" @onchange="OnTagChanged">
-                            <option value="">Tag...</option>
+                        <select class="form-select form-select-sm flex-grow-1" @bind="SelectedTag">
                             @foreach (var tag in Huge.MovLit.Enums.StoryTags.GetAllTags)
                             {
                                 <option value="@tag">@tag</option>
@@ -47,7 +49,7 @@
                 <div class="d-flex align-items-center gap-2 w-100 flex-nowrap">
                     <label class="form-label small m-0" style="min-width:60px;">Search</label>
                     <div class="input-group input-group-sm w-100">
-                        <input class="form-control" placeholder="Search title, description, or tag" value="@_search" @oninput="OnSearchChange" />
+                        <input class="form-control" placeholder="Search title, description, or tag" @bind="SearchTerm" @bind:event="oninput" />
                         @if (!string.IsNullOrWhiteSpace(_search))
                         {
                             <button class="btn btn-outline-secondary" type="button" title="Clear" @onclick="ClearSearch"><span class="bi bi-x"></span></button>
@@ -60,9 +62,34 @@
 
     @if (_loading)
     {
-        <div>Loading...</div>
+        <div class="browse-list">
+            <div class="d-flex justify-content-center">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3 w-100" style="max-width:1200px;">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow-sm">
+                                <div class="bg-secondary bg-opacity-10" style="height:180px;"></div>
+                                <div class="card-body p-2">
+                                    <div class="placeholder-glow mb-1">
+                                        <span class="placeholder col-8"></span>
+                                    </div>
+                                    <div class="placeholder-glow">
+                                        <span class="placeholder col-10"></span>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 pt-0 d-flex justify-content-between">
+                                    <span class="badge rounded-pill text-bg-secondary placeholder col-4">&nbsp;</span>
+                                    <span class="badge text-bg-secondary placeholder col-2">&nbsp;</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     }
-    else if (_stories == null || _stories.Count == 0)
+    else if (_viewStories == null || _viewStories.Count == 0)
     {
         <div class="alert alert-warning">No stories found.</div>
     }
@@ -71,8 +98,8 @@
         <div class="browse-list">
             <!-- Center the card grid within its column -->
             <div class="d-flex justify-content-center">
-                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3 w-100" style="max-width:1200px;">
-                    @foreach (var s in _stories)
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3 w-100" style="max-width:1200px;">
+                    @foreach (var s in _viewStories)
                     {
                         <div class="col" style="cursor:pointer;" @onclick="() => NavigateToStory(s.PageId)">
                             <div class="card h-100 shadow-sm">
@@ -96,9 +123,9 @@
         </div>
 
         <div class="d-flex align-items-center justify-content-between mt-4 browse-pagination">
-            <button class="btn btn-sm btn-outline-secondary" disabled="@(_page == 1)" @onclick="PrevPage">Prev</button>
+            <button class="btn btn-sm btn-outline-primary" disabled="@(_page == 1)" @onclick="PrevPage">Prev</button>
             <div class="small">Page @_page</div>
-            <button class="btn btn-sm btn-outline-secondary" disabled="@(!_hasMore)" @onclick="NextPage">Next</button>
+            <button class="btn btn-sm btn-outline-primary" disabled="@(!_hasMore)" @onclick="NextPage">Next</button>
         </div>
     }
 </div>

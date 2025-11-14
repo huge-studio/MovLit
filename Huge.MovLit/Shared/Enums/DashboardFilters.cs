@@ -11,6 +11,12 @@ namespace Huge.MovLit.Enums
         public const string Trending = "Trending Stories";
         public const string New = "Fresh Stories";
         public const string Top = "Top Stories";
+        //Browse
+        public const string Tag = "Tag";
+        public const string Category = "Category";
+        public const string Browse = "Browse";
+        public const string Mode = "Mode";
+
 
         public static List<string> GetAllFilters => new() { Trending, New, Top };
 
@@ -18,11 +24,11 @@ namespace Huge.MovLit.Enums
         // trending => Trending Stories, fresh => Fresh Stories, top => Top Stories
         public static string ToSlug(string filter)
         {
-            if (string.Equals(filter, Trending, StringComparison.OrdinalIgnoreCase)) return "trending";
-            if (string.Equals(filter, New, StringComparison.OrdinalIgnoreCase)) return "fresh";
-            if (string.Equals(filter, Top, StringComparison.OrdinalIgnoreCase)) return "top";
+            if (string.Equals(filter, Trending, StringComparison.OrdinalIgnoreCase)) return "Trending";
+            if (string.Equals(filter, New, StringComparison.OrdinalIgnoreCase)) return "Fresh";
+            if (string.Equals(filter, Top, StringComparison.OrdinalIgnoreCase)) return "Top";
             // default to fresh
-            return "fresh";
+            return "Fresh";
         }
 
         public static string FromSlug(string slug)

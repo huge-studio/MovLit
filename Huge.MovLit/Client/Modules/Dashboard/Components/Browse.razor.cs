@@ -1,7 +1,6 @@
 ﻿using Huge.MovLit.Enums;
 using Huge.MovLit.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Routing;
 using Oqtane.Modules;
 using Oqtane.Services;
 using System;
@@ -13,143 +12,185 @@ namespace Huge.Dashboard
 {
     public partial class Browse : ModuleBase, IDisposable
     {
-
         [Inject] StoryService StoryService { get; set; }
         [Inject] NavigationManager Nav { get; set; }
-
         [Inject] IPageService PageService { get; set; }
+        [Inject] TagFilterService TagFilter { get; set; }
 
         private List<Huge.MovLit.Models.Story> _stories = new();
+        private List<Huge.MovLit.Models.Story> _viewStories = new();
+
         private bool _loading = true;
         private int _page = 1;
         private int _pageSize = 12;
         private bool _hasMore = false;
-        private string _categorySlug = "fresh"; // default
+        private string _categorySlug = DashboardFilters.New;
         private string _search = string.Empty;
-
-        // new: filter mode and tag selection
         private bool _filterByTag = false;
         private string _selectedTag = string.Empty;
+        private bool _dataInitialized = false;
+        private string _mode = DashboardFilters.Category;
+        private bool _disposed;
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
-            // react to querystring changes (eg. clicking tags in sidebar)
-            Nav.LocationChanged += OnLocationChanged;
-            base.OnInitialized();
-        }
-
-        private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-        {
-            _ = InvokeAsync(async () =>
+            TagFilter.TagChanged += OnExternalTagChanged;
+            try
             {
-                ReadQuery(e.Location);
-                await LoadAsync();
-                await InvokeAsync(StateHasChanged);
-            });
-        }
-
-        protected override async Task OnParametersSetAsync()
-        {
-            ReadQuery(Nav.Uri);
-            await LoadAsync();
-        }
-
-        private void ReadQuery(string uriStr)
-        {
-            var uri = new Uri(uriStr);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-
-            var mode = query.Get("mode");
-            _filterByTag = !string.IsNullOrWhiteSpace(mode) && mode.Equals("tag", StringComparison.OrdinalIgnoreCase);
-
-            var cval = query.Get("category");
-            if (!string.IsNullOrWhiteSpace(cval)) _categorySlug = cval;
-
-            var tval = query.Get("tag");
-            if (!string.IsNullOrWhiteSpace(tval))
-            {
-                _filterByTag = true;
-                _selectedTag = tval;
-                _search = string.Empty; // don't mirror tag into search
+                var (data, code) = await StoryService.GetAsync(DashboardFilters.FromSlug(_categorySlug), 0, ModuleState.ModuleId, all: true);
+                _stories = data ?? new List<Huge.MovLit.Models.Story>();
+                _dataInitialized = true;
             }
-            else if (!_filterByTag)
+            catch (Exception ex)
             {
-                // if not tag mode, keep previous selected tag cleared
-                _selectedTag = string.Empty;
+                await logger.LogError(ex, "Error loading stories", ex.Message);
             }
+            ParseInitialQuery();
+            BuildViewSlice();
+        }
 
-            // reset to first page whenever the source parameters change
+        private void OnExternalTagChanged(string? tag)
+        {
+            if (!_filterByTag) return;
+            _selectedTag = tag ?? string.Empty;
+            _page = 1;
+            BuildViewSlice();
+            StateHasChanged();
+        }
+
+        private void ParseInitialQuery()
+        {
+            var uri = new Uri(Nav.Uri);
+            var qs = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var mode = qs.Get(DashboardFilters.Mode);
+            _filterByTag = !string.IsNullOrWhiteSpace(mode) && mode.Equals(DashboardFilters.Tag, StringComparison.OrdinalIgnoreCase);
+            _mode = _filterByTag ? DashboardFilters.Tag : DashboardFilters.Category;
+            var cat = qs.Get(DashboardFilters.Category);
+            if (!_filterByTag && !string.IsNullOrWhiteSpace(cat)) _categorySlug = cat;
+            var tag = qs.Get(DashboardFilters.Tag);
+            if (_filterByTag && !string.IsNullOrWhiteSpace(tag)) _selectedTag = tag; else if (!_filterByTag) _selectedTag = string.Empty;
             _page = 1;
         }
 
-        private async Task LoadAsync()
+        private void OnModeChanged(ChangeEventArgs e)
         {
-            _loading = true;
-            var useAll = _filterByTag || !string.IsNullOrWhiteSpace(_search);
-            var filter = DashboardFilters.FromSlug(_categorySlug);
-            var take = useAll ? 0 : (_pageSize * _page); // 0 => server returns all
-            (var data, var code) = await StoryService.GetAsync(filter, take, ModuleState.ModuleId, all: useAll);
-            var all = data ?? new();
+            var newMode = e.Value?.ToString() ?? DashboardFilters.Category;
+            var wantTag = string.Equals(newMode, DashboardFilters.Tag, StringComparison.OrdinalIgnoreCase);
+            _mode = newMode;
+            _filterByTag = wantTag;
+            if (!wantTag) _selectedTag = string.Empty;
+            _page = 1;
+            BuildViewSlice(); // no navigation, local re-filter
+        }
+
+        protected string CategorySlug
+        {
+            get => _categorySlug;
+            set
+            {
+                if (_filterByTag) return;
+                if (_categorySlug == value) return;
+                _categorySlug = value ?? DashboardFilters.New;
+                _page = 1;
+                BuildViewSlice();
+            }
+        }
+
+        protected string SelectedTag
+        {
+            get => _selectedTag;
+            set
+            {
+                if (!_filterByTag) return;
+                if (_selectedTag == value) return;
+                _selectedTag = value ?? string.Empty;
+                _page = 1;
+                BuildViewSlice();
+            }
+        }
+
+        protected string SearchTerm
+        {
+            get => _search;
+            set
+            {
+                var newVal = value ?? string.Empty;
+                if (_search == newVal) return;
+                _search = newVal;
+                _page = 1;
+                BuildViewSlice();
+            }
+        }
+
+        private void BuildViewSlice()
+        {
+            if (!_dataInitialized) return;
+            IEnumerable<Huge.MovLit.Models.Story> working = _stories;
+
+            if (!_filterByTag)
+            {
+                working = _categorySlug switch
+                {
+                    "Fresh" => working.OrderByDescending(s => s.CreatedOn),
+                    "Top" => working.OrderByDescending(s => s.UpvoteCount),
+                    "Trending" => working.Where(s => s.CreatedOn >= DateTime.UtcNow.AddDays(-30)).OrderByDescending(s => s.UpvoteCount).ThenByDescending(s => s.CreatedOn),
+                    _ => working
+                };
+            }
 
             if (_filterByTag && !string.IsNullOrWhiteSpace(_selectedTag))
             {
-                all = all.Where(s => (s.Tags != null && s.Tags.Any(t => string.Equals(t, _selectedTag, StringComparison.OrdinalIgnoreCase)))).ToList();
+                working = working.Where(s => s.Tags != null && s.Tags.Any(t => string.Equals(t, _selectedTag, StringComparison.OrdinalIgnoreCase)));
             }
 
             if (!string.IsNullOrWhiteSpace(_search))
             {
                 var term = _search.ToLowerInvariant();
-                all = all.Where(s => (s.Title?.ToLowerInvariant().Contains(term) ?? false) || (s.Description?.ToLowerInvariant().Contains(term) ?? false) || (s.Tags != null && s.Tags.Any(t => t.ToLowerInvariant().Contains(term)))).ToList();
+                working = working.Where(s => (s.Title?.ToLowerInvariant().Contains(term) ?? false)
+                                          || (s.Description?.ToLowerInvariant().Contains(term) ?? false)
+                                          || (s.Tags != null && s.Tags.Any(t => t.ToLowerInvariant().Contains(term))));
             }
 
-            // slice client-side
-            _stories = all.Skip((_page - 1) * _pageSize).Take(_pageSize).ToList();
-            _hasMore = all.Count > _page * _pageSize;
+            var list = working.ToList();
+            _hasMore = list.Count > _page * _pageSize;
+            _viewStories = list.Skip((_page - 1) * _pageSize).Take(_pageSize).ToList();
             _loading = false;
-            StateHasChanged();
         }
 
-        private async Task PrevPage()
+        private Task PrevPage()
         {
             if (_page > 1)
             {
                 _page--;
-                await LoadAsync();
+                BuildViewSlice();
             }
+            return Task.CompletedTask;
         }
 
-        private async Task NextPage()
+        private Task NextPage()
         {
             if (_hasMore)
             {
                 _page++;
-                await LoadAsync();
+                BuildViewSlice();
             }
+            return Task.CompletedTask;
         }
 
-        private async Task OnSearchChange(ChangeEventArgs e)
+        private Task ClearSearch()
         {
-            _search = Convert.ToString(e?.Value) ?? string.Empty;
-            _page = 1;
-            await LoadAsync();
+            SearchTerm = string.Empty;
+            return Task.CompletedTask;
         }
 
-        private async Task ClearSearch()
-        {
-            _search = string.Empty;
-            _page = 1;
-            await LoadAsync();
-        }
+        private Task NavigateToStory(int pageId) => GoToStory(pageId);
 
-        private async Task NavigateToStory(int pageId)
+        private async Task GoToStory(int pageId)
         {
             try
             {
                 var page = await PageService.GetPageAsync(pageId);
-                if (page != null)
-                {
-                    Nav.NavigateTo(page.Path);
-                }
+                if (page != null) Nav.NavigateTo(page.Path);
             }
             catch (Exception ex)
             {
@@ -157,52 +198,18 @@ namespace Huge.Dashboard
             }
         }
 
-        private async Task OnModeChanged(ChangeEventArgs e)
-        {
-            _filterByTag = string.Equals(Convert.ToString(e?.Value), "tag", StringComparison.OrdinalIgnoreCase);
-            _page = 1;
-            await LoadAsync();
-        }
-
-        private async Task OnCategoryChanged(ChangeEventArgs e)
-        {
-            _categorySlug = Convert.ToString(e?.Value) ?? "fresh";
-            _page = 1;
-            await LoadAsync();
-        }
-
-        private async Task OnTagChanged(ChangeEventArgs e)
-        {
-            _selectedTag = Convert.ToString(e?.Value) ?? string.Empty;
-            _page = 1;
-            await LoadAsync();
-        }
-
         private void GoBack()
         {
-            // Navigate back to dashboard root without browse
             var basePath = Nav.Uri.Split('?')[0];
-            // assume base dashboard path is everything up to '/browse'
-            if (basePath.EndsWith("/browse", StringComparison.OrdinalIgnoreCase))
-            {
-                Nav.NavigateTo(basePath.Substring(0, basePath.Length - "/browse".Length));
-            }
-            else
-            {
-                Nav.NavigateTo("/dashboard");
-            }
+            Nav.NavigateTo(basePath.Replace("/browse", "/dashboard"));
         }
 
         public void Dispose()
         {
-            try
-            {
-                Nav.LocationChanged -= OnLocationChanged;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error disposing location changed listener.", ex.Message);
-           }
+            if (_disposed) return;
+            _disposed = true;
+            try { TagFilter.TagChanged -= OnExternalTagChanged; } catch { }
         }
     }
 }
+
