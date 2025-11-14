@@ -35,7 +35,6 @@ namespace Huge.Dashboard
             // detect inline browse mode via query string
             var uri = new Uri(Nav.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var wasBrowse = _isBrowse;
             _isBrowse = !string.IsNullOrWhiteSpace(query.Get("browse"));
             var cat = query.Get("category");
             if (!string.IsNullOrWhiteSpace(cat))
