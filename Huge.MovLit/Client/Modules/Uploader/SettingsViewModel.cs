@@ -9,7 +9,7 @@ namespace Huge.Uploader
 
         public SettingsViewModel(ISettingService settingService, Dictionary<string, string> moduleSettings)
         {
-            FilePath = settingService.GetSetting(moduleSettings, nameof(FilePath), FilePath);;
+            FilePath = settingService.GetSetting(moduleSettings, nameof(FilePath), FilePath);
         }
 
         public void SetSettings(ISettingService settingService, Dictionary<string, string> moduleSettings)
