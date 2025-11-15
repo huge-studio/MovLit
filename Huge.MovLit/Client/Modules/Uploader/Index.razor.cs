@@ -8,7 +8,6 @@ namespace Huge.Uploader
 {
     public partial class Index : ModuleBase
     {
-        [Inject] public ISettingService SettingService { get; set; }
 
         private string _returnUrl;
         private string _settingsUrl;
