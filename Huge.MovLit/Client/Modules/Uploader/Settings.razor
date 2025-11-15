@@ -5,7 +5,7 @@
 {
     <div class="container py-3">
         <div class="row mb-3 align-items-center">
-            <Label For="File Upload" class="form-label col-sm-3" HelpText="Upload files for use in stories.">File Upload</Label>
+            <Label For="filePath" class="form-label col-sm-3" HelpText="Upload files for use in stories.">File Upload</Label>
             <div class="col-sm-9">
                 <input id="filePath" class="form-control mb-2" @bind="_vm.FilePath" disabled />
                 <FileManager OnSelectFile="fileId => HandleUpload(fileId)"></FileManager>
