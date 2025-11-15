@@ -16,8 +16,6 @@ namespace Huge.Uploader
 
         private SettingsViewModel _vm;
         private bool _loading = true;
-        private bool _useLottieUrl = false;
-        private bool _useImageUrl = false;
 
         protected override async Task OnInitializedAsync()
         {
