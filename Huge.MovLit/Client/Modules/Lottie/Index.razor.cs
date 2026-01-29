@@ -38,19 +38,14 @@ public partial class Index : ModuleBase, IDisposable
         try
         {
             _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
-            _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
+            _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}");
 
-            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            var vm = new SettingsViewModel(SettingService, settings);
-
-            _lottieSource = vm.LottieSource;
-            _imageSource = vm.ImgSource;
-
-            PublishInitialToSiteState();
+            _lottieSource = SiteState.Properties.Lottie ?? string.Empty;
+            _imageSource = SiteState.Properties.Image ?? string.Empty;
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            await logger.LogError(ex, "Error Loading Lottie {Error}", ex.Message);
             if (!PageState.EditMode)
             {
                 AddModuleMessage("Error Loading Content", MessageType.Error);
@@ -59,32 +54,6 @@ public partial class Index : ModuleBase, IDisposable
         finally
         {
             loading = false;
-        }
-    }
-
-    // Seed SiteState with initial media so ProcessTags can restore on "Previous"
-    private void PublishInitialToSiteState()
-    {
-        if (PageState.EditMode)
-        {
-            return;
-        }
-        // If there is already a published source to sitestate do nothing
-        if (!string.IsNullOrWhiteSpace(SiteState.Properties.Lottie) || !string.IsNullOrWhiteSpace(SiteState.Properties.Image))
-        {
-            return;
-        }
-
-        if (!string.IsNullOrWhiteSpace(_lottieSource))
-        {
-            SiteState.Properties.Lottie = _lottieSource;
-            _needsPlay = true;
-            return;
-        }
-        else if (!string.IsNullOrWhiteSpace(_imageSource))
-        {
-            SiteState.Properties.Image = _imageSource;
-            return;
         }
     }
 

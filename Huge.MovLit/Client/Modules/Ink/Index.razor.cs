@@ -276,8 +276,6 @@ namespace Huge.Ink
         {
             if (_story == null) return;
 
-            // If available set initialUrl from lottie module
-            InkVariables.SetInitialUrl(_story, SiteState);
             // If available set player_name from user name
             InkVariables.SetPlayerName(_story, PageState);
 
