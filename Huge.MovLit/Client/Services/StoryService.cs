@@ -16,9 +16,9 @@ namespace Huge.MovLit.Services
 
         private string Apiurl => CreateApiUrl("Story");
 
-        public async Task<(List<Models.Story> Data, HttpStatusCode Code)> GetAsync(string filter, int take, int moduleId)
+        public async Task<(List<Models.Story> Data, HttpStatusCode Code)> GetAsync(string filter, int take, int moduleId, bool all = false)
         {
-            var url = CreateAuthorizationPolicyUrl($"{Apiurl}?filter={filter}&take={take}", EntityNames.Module, moduleId);
+            var url = CreateAuthorizationPolicyUrl($"{Apiurl}?filter={Uri.EscapeDataString(filter)}&take={take}&all={(all ? "true" : "false")}", EntityNames.Module, moduleId);
             (var data, var response) = await GetJsonWithResponseAsync<List<Models.Story>>(url);
             return (data, response.StatusCode);
         }

@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Huge.MovLit.Services;
 using Huge.MovLit.Enums;
+using System;
 
 namespace Huge.Dashboard
 {
@@ -14,10 +15,13 @@ namespace Huge.Dashboard
     {
         [Inject] public ISettingService SettingService { get; set; }
         [Inject] public StoryService StoryService { get; set; }
+        [Inject] public NavigationManager Nav { get; set; }
 
         private string _returnUrl;
         private string _settingsUrl;
         private bool _loading;
+        protected bool _isBrowse;
+        protected string _browseCategory = DashboardFilters.New;
 
         protected List<SectionConfig> Sections { get; set; } = new();
         protected bool ShowHero { get; set; } = false;
@@ -28,10 +32,23 @@ namespace Huge.Dashboard
             _returnUrl = WebUtility.UrlEncode(PageState.Uri.AbsolutePath.ToString());
             _settingsUrl = EditUrl("Settings", $"returnurl={_returnUrl}&tab=ModuleSettings");
 
-            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            var vm = new SettingsViewModel(SettingService, settings);
-            Sections = vm.Sections ?? new();
-            ShowHero = vm.ShowHero;
+            // detect inline browse mode via query string
+            var uri = new Uri(Nav.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            _isBrowse = !string.IsNullOrWhiteSpace(query.Get("browse"));
+            var cat = query.Get("category");
+            if (!string.IsNullOrWhiteSpace(cat))
+            {
+                _browseCategory = DashboardFilters.FromSlug(cat);
+            }
+
+            if (!_isBrowse)
+            {
+                var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+                var vm = new SettingsViewModel(SettingService, settings);
+                Sections = vm.Sections ?? new();
+                ShowHero = vm.ShowHero;
+            }
             _loading = false;
         }
     }

@@ -66,5 +66,13 @@ namespace Huge.Dashboard
                 await logger.LogError(ex, "Error navigating to page", ex.Message);
             }
         }
+
+        private void NavigateToBrowse()
+        {
+            // Add browse query param to current page path and carry category slug
+            var slug = DashboardFilters.ToSlug(SectionTitle);
+            var basePath = new Uri(NavigationManager.Uri).GetLeftPart(UriPartial.Path);
+            NavigationManager.NavigateTo($"{basePath}?browse=true&category={Uri.EscapeDataString(slug)}");
+        }
     }
 }

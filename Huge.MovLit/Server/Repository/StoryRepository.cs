@@ -175,5 +175,21 @@ namespace Huge.MovLit.Repository
             await db.SaveChangesAsync();
             return existing ?? like;
         }
+
+        public async Task<IEnumerable<Models.Story>> GetAllValidStoriesAsync(int? take = null)
+        {
+            using var db = _factory.CreateDbContext();
+            var query = db.Story.AsNoTracking().Where(s =>
+                s.CoverArtUrl != null &&
+                s.Title != InkGettingStarted.Title &&
+                s.Description != InkGettingStarted.Description);
+
+            query = query.OrderByDescending(s => s.CreatedOn);
+            if (take.HasValue && take.Value > 0)
+            {
+                query = query.Take(take.Value);
+            }
+            return await query.ToListAsync();
+        }
     }
 }

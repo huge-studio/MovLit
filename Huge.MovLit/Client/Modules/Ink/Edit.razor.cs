@@ -37,6 +37,9 @@ namespace Huge.Ink
 
         private string _returnUrl;
         private string _errorMessage;
+        private string[] _selectedTags = Array.Empty<string>();
+
+
 
         private readonly List<string> _allTags = StoryTags.GetAllTags;
 
@@ -59,6 +62,8 @@ namespace Huge.Ink
                 {
                     throw new Exception($"Story returned null for edit action");
                 }
+                _selectedTags = _story.Tags?.ToArray() ?? Array.Empty<string>();
+
             }
             catch (Exception ex)
             {
@@ -99,30 +104,6 @@ namespace Huge.Ink
             }
         }
 
-        private void OnTagsChanged(ChangeEventArgs e)
-        {
-            if (_story == null) return;
-
-            var tags = e?.Value as string[];
-
-            if (tags != null && tags.Length > 0)
-            {
-                _story.Tags ??= new List<string>();
-                _story.Tags.RemoveAll(tag => !tags.Contains(tag));
-                foreach (var tag in tags)
-                {
-                    if (!_story.Tags.Contains(tag) && _allTags.Contains(tag))
-                    {
-                        _story.Tags.Add(tag);
-                    }
-                }
-            }
-            else
-            {
-                _story.Tags = new List<string>();
-                return;
-            }
-        }
 
         private async Task Save()
         {
@@ -150,6 +131,15 @@ namespace Huge.Ink
                     {
                         return;
                     }
+                }
+
+                if (_selectedTags != null && _selectedTags.Length > 0)
+                {
+                    _story.Tags = _selectedTags.ToList();
+                }
+                else
+                {
+                    _story.Tags = new List<string>();
                 }
 
                 if (_story.StoryId > 0)

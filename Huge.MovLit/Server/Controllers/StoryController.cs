@@ -57,13 +57,17 @@ namespace Huge.MovLit.Controllers
         // GET: api/<controller>?moduleid=x&filter=y&take=z
         [HttpGet]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public async Task<ActionResult<IEnumerable<Models.Story>>> Get(string filter = DashboardFilters.New, int take = 12)
+        public async Task<ActionResult<IEnumerable<Models.Story>>> Get(string filter = DashboardFilters.New, int take = 12, bool all = false)
         {
             try
             {
                 IEnumerable<Models.Story> stories;
 
-                if (filter == DashboardFilters.Top)
+                if (all)
+                {
+                    stories = await _repo.GetAllValidStoriesAsync(take > 0 ? take : null);
+                }
+                else if (filter == DashboardFilters.Top)
                 {
                     stories = await _repo.GetTopAllTimeByLikesAsync(take);
                 }
@@ -105,8 +109,8 @@ namespace Huge.MovLit.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Story Get Attempt {StoryId} {ModuleId}", id, moduleid);
-                HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Failed Story Get Attempt {StoryId} {ModuleId}", id, moduleid);
+                HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.NotFound;
                 return null;
             }
         }

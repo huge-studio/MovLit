@@ -8,16 +8,23 @@
     <div class="row row-cols-2 g-2">
         @foreach (var tag in _tags.Take(Count))
         {
+            var disabled = DisableInteraction || _isBrowseContext;
             <div class="col">
-                <a class="disabled link-body-secondary h5 d-inline-block" style="text-decoration:none;">@tag</a>
+                <a class="link-body-secondary h5 d-inline-block @(disabled ? "disabled text-muted" : string.Empty)" style="text-decoration:none;cursor:@(disabled ? "default" : "pointer");" @onclick="(() => { if(!disabled) GoTag(tag); })">@tag</a>
             </div>
         }
         @if (ShowBrowseAllLink)
         {
+            var disabled = DisableInteraction || _isBrowseContext;
             <div class="col-12">
-                <a class="disabled btn btn-primary btn-sm d-flex align-items-center justify-content-center"><span>Browse all tags</span><span class="bi bi-arrow-right"></span></a>
+                <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" disabled="@disabled" @onclick="GoAllTags" style="cursor:@(disabled ? "default" : "pointer");">
+                    <span>Browse all tags</span>
+                    <span class="bi bi-arrow-right"></span>
+                </button>
             </div>
         }
     </div>
 </div>
+
+
 
