@@ -11,14 +11,14 @@
     default:
     case ChoiceType.Button:
         {
-            <button class="btn btn-primary btn-md" @onclick="ChoiceSelected">@Choice.Text</button>
+            <button class="btn btn-primary choice-btn" @onclick="ChoiceSelected">@Choice.Text</button>
             break;
         }
     case ChoiceType.ImageButton:
         {
             // Handle choices defined like this: "+ [#Image=someimage.png]"
             var imageSource = GetTagValueByName(InkTag.Image) ?? string.Empty;
-            <button class="btn btn-outline-secondary choice-card image-button" @onclick="ChoiceSelected">
+            <button class="btn btn-outline-secondary choice-card image-button choice-btn" @onclick="ChoiceSelected">
                 <img src="@imageSource" class="img-fluid" />
             </button>
             break;

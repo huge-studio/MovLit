@@ -1,0 +1,22 @@
+﻿/* Make the main ink text area scroll when viewport height is short */
+@media (max-width: 991.98px) { /* md and down */
+  .ink-container .prompt-card .prompt-text {
+    max-height: 15dvh;
+    overflow-y: auto;
+    scrollbar-width: thin; /* Firefox */
+  }
+  .ink-container .prompt-card .prompt-text::-webkit-scrollbar { /* WebKit */
+    width: 6px;
+  }
+  /* Make choice and previous buttons small on small screens */
+  .choice-btn,
+  .ink-prev-btn {
+    padding: .25rem .5rem; /* Bootstrap btn-sm paddings */
+    font-size: .875rem;
+    border-radius: .2rem;
+  }
+}
+
+.card-body{
+    padding-bottom: 0 !important;
+}

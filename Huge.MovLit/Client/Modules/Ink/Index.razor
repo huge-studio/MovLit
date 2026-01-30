@@ -39,26 +39,24 @@ else
 {
     <div class="ink-container">
         <div class="card mb-3 prompt-card">
-            <div class="card-body position-relative">
+            <div class="card-body">
                 <div class="prompt-text mb-3 @( _settingsVM.CenterJustify ? "text-center" : string.Empty )" data-center-text="@_settingsVM.CenterJustify.ToString()">
                     @_currentLine
                 </div>
-
-                <!-- metrics badges -->
-                <div class="position-absolute bottom-0 end-0 mt-3 mx-3">
-                    <button type="button"
-                            class="my-1 btn btn-sm btn-secondary shadow-lg"
-                            disabled>
-                        <i class="bi bi-eye"></i> @_viewCount
-                    </button>
-                    <button type="button"
-                            class="btn btn-sm my-1 @(_liked ? "btn-danger" : "btn-outline-danger") shadow-lg"
-                            disabled="@(!_canLike)"
-                            title="@(_liked ? "Unlike" : "Like")"
-                            @onclick="ToggleLikeAsync">
-                        <i class="bi  @(_liked ? "bi-heart-fill" : "bi-heart")"></i> @_likeCount
-                    </button>
-                </div>
+            </div>
+            <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
+                <button type="button"
+                        class="my-1 btn btn-sm btn-secondary"
+                        disabled>
+                    <i class="bi bi-eye"></i> @_viewCount
+                </button>
+                <button type="button"
+                        class="btn btn-sm my-1 @(_liked ? "btn-danger" : "btn-outline-danger")"
+                        disabled="@(!_canLike)"
+                        title="@(_liked ? "Unlike" : "Like")"
+                        @onclick="ToggleLikeAsync">
+                    <i class="bi  @(_liked ? "bi-heart-fill" : "bi-heart")"></i> @_likeCount
+                </button>
             </div>
         </div>
 
@@ -67,7 +65,7 @@ else
             <div class="d-flex flex-wrap justify-content-center p-3 gap-2">
                 @if (_hasPrevious)
                 {
-                    <button class="btn btn-secondary btn-lg" @onclick="Previous">Previous</button>
+                    <button class="btn btn-secondary btn-lg ink-prev-btn" @onclick="Previous">Previous</button>
                 }
                 @foreach (var choice in _currentChoices)
                 {
@@ -80,7 +78,7 @@ else
             <div class="d-flex flex-wrap justify-content-center p-3 gap-2">
                 @if (_hasPrevious)
                 {
-                    <button class="btn btn-secondary btn-lg" @onclick="Previous">Previous</button>
+                    <button class="btn btn-secondary btn-lg ink-prev-btn" @onclick="Previous">Previous</button>
                 }
                 @if (_hasNext)
                 {

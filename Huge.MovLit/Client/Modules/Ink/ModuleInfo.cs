@@ -28,7 +28,8 @@ namespace Huge.Ink
                 new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js" },
                 new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js" },
                 new Resource { Location = ResourceLocation.Head, Level = ResourceLevel.Site, ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js" },
-                new Resource { ResourceType = ResourceType.Script, Location = ResourceLocation.Body, Level = ResourceLevel.Site, Url = "~/Module.js" }
+                new Resource { ResourceType = ResourceType.Script, Location = ResourceLocation.Body, Level = ResourceLevel.Site, Url = "~/Module.js" },
+                new Resource { ResourceType = ResourceType.Stylesheet, Location = ResourceLocation.Head, Level = ResourceLevel.Site, Url = "~/Module.css" }
             }
         };
     }
