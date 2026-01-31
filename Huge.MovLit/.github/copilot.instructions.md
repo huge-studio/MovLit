@@ -53,7 +53,7 @@
 
 - Utilize Blazor server-side or WebAssembly optimally based on the project requirements.
 - Use asynchronous methods (async/await) for API calls or UI actions that could block the main thread.
-- Optimize Razor components by reducing unnecessary renders and using StateHasChanged() efficiently.
+- Optimize Blazor components by reducing unnecessary renders and using StateHasChanged() efficiently.
 - Minimize the component render tree by avoiding re-renders unless necessary, using ShouldRender() where appropriate.
 - Use EventCallbacks for handling user interactions efficiently, passing only minimal data when triggering events.
 
