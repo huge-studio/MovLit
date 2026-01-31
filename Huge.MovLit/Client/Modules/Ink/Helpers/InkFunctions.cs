@@ -28,11 +28,11 @@ namespace Huge.Ink
             return headers;
         }
 
-        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav)
+        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState)
         {
             story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState));
             story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));
-            story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav));
+            story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav, pageState));
             story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase, nav));
             story.BindExternalFunction("navigatePage", (string name) => NavigatePage(name, moduleBase, nav));
         }
@@ -86,8 +86,18 @@ namespace Huge.Ink
             }
         }
         // show lottie
-        public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav)
+        public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav, PageState pageState)
         {
+            // Prepend the user's personal folder to the lottie name
+            if (!string.IsNullOrEmpty(lottieUrl) && !lottieUrl.StartsWith("/") && !lottieUrl.Contains(":"))
+            {
+                var userId = pageState?.User?.UserId;
+                if (userId.HasValue && userId.Value != -1)
+                {
+                    lottieUrl = $"/files/Users/{userId}/{lottieUrl}";
+                }
+            }
+            
             lottieUrl = UrlParser.ParseTagUrl(new List<string> { $"lottie:{lottieUrl}" }, "lottie:", nav);
             if (!string.IsNullOrEmpty(lottieUrl))
             {
