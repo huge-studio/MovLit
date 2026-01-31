@@ -88,11 +88,26 @@ namespace Huge.Ink
         // show lottie
         public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav, PageState pageState)
         {
-            // Prepend the user's personal folder to the lottie name
-            if (!string.IsNullOrEmpty(lottieUrl) && !lottieUrl.StartsWith("/") && !lottieUrl.Contains(":"))
+            if (!string.IsNullOrEmpty(lottieUrl))
             {
                 var userId = pageState?.User?.UserId;
-                if (userId.HasValue && userId.Value != -1)
+                
+                // Handle tilde (~) as user folder shorthand
+                if (lottieUrl.StartsWith("~") && userId.HasValue && userId.Value != -1)
+                {
+                    // Replace ~ with /files/Users/{UserId}
+                    // Handle both ~/file.lottie and ~file.lottie
+                    if (lottieUrl.StartsWith("~/"))
+                    {
+                        lottieUrl = $"/files/Users/{userId}{lottieUrl.Substring(1)}";
+                    }
+                    else
+                    {
+                        lottieUrl = $"/files/Users/{userId}/{lottieUrl.Substring(1)}";
+                    }
+                }
+                // For relative paths without ~, prepend user folder
+                else if (!lottieUrl.StartsWith("/") && !lottieUrl.Contains(":") && userId.HasValue && userId.Value != -1)
                 {
                     lottieUrl = $"/files/Users/{userId}/{lottieUrl}";
                 }
