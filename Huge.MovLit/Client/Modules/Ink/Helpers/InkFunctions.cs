@@ -31,7 +31,7 @@ namespace Huge.Ink
         public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState)
         {
             story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState));
-            story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));
+            story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav, pageState));
             story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav, pageState));
             story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase, nav));
             story.BindExternalFunction("navigatePage", (string name) => NavigatePage(name, moduleBase, nav));
@@ -77,9 +77,9 @@ namespace Huge.Ink
             siteState.Properties.SoundUrl = soundUrl;
         }
         // show image
-        public static void ShowImage(string imageUrl, SiteState siteState, NavigationManager nav)
+        public static void ShowImage(string imageUrl, SiteState siteState, NavigationManager nav, PageState pageState)
         {
-            imageUrl = UrlParser.ParseTagUrl(new List<string> { $"image:{imageUrl}" }, "image:", nav);
+            imageUrl = UrlParser.ParseTagUrl(new List<string> { $"image:{imageUrl}" }, "image:", nav, pageState, useUserFolder: true);
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 siteState.Properties.Image = imageUrl;
@@ -88,32 +88,7 @@ namespace Huge.Ink
         // show lottie
         public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav, PageState pageState)
         {
-            if (!string.IsNullOrEmpty(lottieUrl))
-            {
-                var userId = pageState?.User?.UserId;
-                
-                // Handle tilde (~) as user folder shorthand
-                if (lottieUrl.StartsWith("~") && userId.HasValue && userId.Value != -1)
-                {
-                    // Replace ~ with /files/Users/{UserId}
-                    // Handle both ~/file.lottie and ~file.lottie
-                    if (lottieUrl.StartsWith("~/"))
-                    {
-                        lottieUrl = $"/files/Users/{userId}{lottieUrl.Substring(1)}";
-                    }
-                    else
-                    {
-                        lottieUrl = $"/files/Users/{userId}/{lottieUrl.Substring(1)}";
-                    }
-                }
-                // For relative paths without ~, prepend user folder
-                else if (!lottieUrl.StartsWith("/") && !lottieUrl.Contains(":") && userId.HasValue && userId.Value != -1)
-                {
-                    lottieUrl = $"/files/Users/{userId}/{lottieUrl}";
-                }
-            }
-            
-            lottieUrl = UrlParser.ParseTagUrl(new List<string> { $"lottie:{lottieUrl}" }, "lottie:", nav);
+            lottieUrl = UrlParser.ParseTagUrl(new List<string> { $"lottie:{lottieUrl}" }, "lottie:", nav, pageState, useUserFolder: true);
             if (!string.IsNullOrEmpty(lottieUrl))
             {
                 siteState.Properties.Lottie = lottieUrl;
