@@ -31,8 +31,8 @@ namespace Huge.Ink
         public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState)
         {
             story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState));
-            story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav, pageState));
-            story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav, pageState));
+            story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));
+            story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav));
             story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase, nav));
             story.BindExternalFunction("navigatePage", (string name) => NavigatePage(name, moduleBase, nav));
         }
@@ -77,18 +77,18 @@ namespace Huge.Ink
             siteState.Properties.SoundUrl = soundUrl;
         }
         // show image
-        public static void ShowImage(string imageUrl, SiteState siteState, NavigationManager nav, PageState pageState)
+        public static void ShowImage(string imageUrl, SiteState siteState, NavigationManager nav)
         {
-            imageUrl = UrlParser.ParseTagUrl(new List<string> { $"image:{imageUrl}" }, "image:", nav, pageState, useUserFolder: true);
+            imageUrl = UrlParser.ParseTagUrl(new List<string> { $"image:{imageUrl}" }, "image:", nav);
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 siteState.Properties.Image = imageUrl;
             }
         }
         // show lottie
-        public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav, PageState pageState)
+        public static void ShowLottie(string lottieUrl, SiteState siteState, NavigationManager nav)
         {
-            lottieUrl = UrlParser.ParseTagUrl(new List<string> { $"lottie:{lottieUrl}" }, "lottie:", nav, pageState, useUserFolder: true);
+            lottieUrl = UrlParser.ParseTagUrl(new List<string> { $"lottie:{lottieUrl}" }, "lottie:", nav);
             if (!string.IsNullOrEmpty(lottieUrl))
             {
                 siteState.Properties.Lottie = lottieUrl;
