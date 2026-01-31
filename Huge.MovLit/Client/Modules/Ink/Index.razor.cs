@@ -255,7 +255,7 @@ namespace Huge.Ink
                 var compiledStory = compiler.Compile();
                 _story = compiledStory;
 
-                InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager);
+                InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager, PageState);
             }
             catch (Exception ex)
             {

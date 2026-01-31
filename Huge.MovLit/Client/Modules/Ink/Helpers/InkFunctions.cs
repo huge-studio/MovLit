@@ -28,7 +28,7 @@ namespace Huge.Ink
             return headers;
         }
 
-        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav)
+        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState)
         {
             story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState));
             story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));

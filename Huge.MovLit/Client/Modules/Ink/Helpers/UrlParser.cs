@@ -38,14 +38,14 @@ namespace Huge.Ink
                 // turn "~/files/..." into an absolute URL based on NavigationManager.BaseUri
                 return nav.BaseUri.TrimEnd('/') + value[1..];
             }
-            // Case 3: showLottie method writen as showLottie("/files...")
+            
+            // Case 3: Absolute path (/files...)
             if (value.StartsWith("/"))
             {
-                // Case 3: showLottie method writen as showLottie("/files...")
                 return nav.BaseUri.TrimEnd('/') + value;
             }
 
-            // Case 4: Add https://
+            // Case 4: Assume external URL, add https://
             return $"https://{value}";
         }
     }

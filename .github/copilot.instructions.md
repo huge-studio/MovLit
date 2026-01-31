@@ -1,7 +1,4 @@
----
-description: 'Oqtane Module patterns'
-applyTo: '**/*.razor, **/*.razor.cs, **/*.razor.css'
----
+
 
 ## Blazor Code Style and Structure
 
