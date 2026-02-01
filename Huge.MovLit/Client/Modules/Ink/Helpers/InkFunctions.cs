@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using InkRun = global::Ink.Runtime;
 using Oqtane.UI;
 using Microsoft.AspNetCore.Components;
+using Huge.MovLit.Services;
 
 
 // In keeping with the ink documentation, we will need to create a class that will contain the functions that we want to expose to the ink script.
@@ -23,18 +24,30 @@ namespace Huge.Ink
                 EXTERNAL showLottie(lottieUrl)
                 EXTERNAL navigateUrl(url)
                 EXTERNAL navigatePage(pageName)
+                EXTERNAL registerItem(name, type, icon)
+                EXTERNAL collectItem(itemId)
+                EXTERNAL hasItem(itemId)
+                EXTERNAL countItems(type)
+                EXTERNAL totalItems(type)
+                EXTERNAL itemIcon(itemId)
                 // End Ink Headers";
 
             return headers;
         }
 
-        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState)
+        public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState, InventoryService inventory)
         {
             story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState, nav));
             story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));
             story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav));
             story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase, nav));
             story.BindExternalFunction("navigatePage", (string name) => NavigatePage(name, moduleBase, nav));
+            story.BindExternalFunction("registerItem", (string name, string type, string icon) => RegisterItem(name, type, icon, inventory));
+            story.BindExternalFunction("collectItem", (string name) => CollectItem(name, inventory));
+            story.BindExternalFunction("hasItem", (string name) => HasItem(name, inventory));
+            story.BindExternalFunction("countItems", (string type) => CountItems(type, inventory));
+            story.BindExternalFunction("totalItems", (string type) => TotalItems(type, inventory));
+            story.BindExternalFunction("itemIcon", (string name) => GetItemIcon(name, inventory));
         }
 
         /// <summary>
@@ -114,6 +127,42 @@ namespace Huge.Ink
         {
             var page = moduleBase.NavigateUrl(pageName);
             nav.NavigateTo(page);
+        }
+
+        // register item
+        public static void RegisterItem(string name, string type, string icon, InventoryService inventory)
+        {
+            inventory.RegisterItem(name, type, icon);
+        }
+
+        // collect item
+        public static void CollectItem(string name, InventoryService inventory)
+        {
+            inventory.CollectItem(name);
+        }
+
+        // has item
+        public static bool HasItem(string name, InventoryService inventory)
+        {
+            return inventory.HasItem(name);
+        }
+
+        // count items
+        public static int CountItems(string type, InventoryService inventory)
+        {
+            return inventory.CountByType(type);
+        }
+
+        // total items
+        public static int TotalItems(string type, InventoryService inventory)
+        {
+            return inventory.TotalByType(type);
+        }
+
+        // get item icon
+        public static string GetItemIcon(string name, InventoryService inventory)
+        {
+            return inventory.GetItemIcon(name);
         }
     }
 }

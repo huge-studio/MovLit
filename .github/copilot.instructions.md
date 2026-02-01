@@ -34,6 +34,9 @@
 - Client service should call server endpoint using ServiceBase methods
 - Server project contains MVC Controllers, one for each module that match the client service calls.  Each controller will call server-side services or repositories managed by DI
 - Server projects use repository patterns for modules, one repository class per module to match the controllers. 
+- **Module CSS files must be placed in Server\wwwroot\Modules\{ModuleName}\Module.css**, NOT in the Client project. Oqtane serves static assets from the Server project.
+- Module JavaScript files should also be placed in Server\wwwroot\Modules\{ModuleName}\Module.js
+- The ModuleInfo.cs in the Client project references these resources using relative paths like '~/Module.css' and '~/Module.js'
 
 ## Git and Source Control Guidelines
 
