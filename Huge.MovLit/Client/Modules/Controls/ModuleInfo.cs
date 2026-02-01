@@ -3,14 +3,14 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using System.Collections.Generic;
 
-namespace Huge.MusicPlayer
+namespace Huge.Controls
 {
     public class ModuleInfo : IModule
     {
         public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
-            Name = "MusicPlayer",
-            Description = "HTML5 Audio Music Player Module",
+            Name = "Controls",
+            Description = "Controls Module with Fullscreen Toggle and Audio Player",
             Version = "1.0.0",
             ServerManagerType = "Huge.MovLit.Manager.MyModuleManager, Huge.MovLit.Server.Oqtane",
             ReleaseVersions = "1.0.0",

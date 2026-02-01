@@ -5,13 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Huge.MusicPlayer
+namespace Huge.Controls
 {
     public partial class Settings : ModuleBase
     {
         [Inject] public ISettingService SettingService { get; set; }
 
-        public override string Title => "Music Player Settings";
+        public override string Title => "Controls Settings";
 
         private string _trackUrl = "";
 
@@ -24,7 +24,7 @@ namespace Huge.MusicPlayer
             }
             catch (Exception ex)
             {
-                await logger.LogError(ex, "Error Loading Music Player Settings");
+                await logger.LogError(ex, "Error Loading Controls Settings");
                 AddModuleMessage("Error Loading Settings", MessageType.Error);
             }
         }

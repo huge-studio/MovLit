@@ -1,11 +1,11 @@
-@namespace Huge.MusicPlayer
+@namespace Huge.Controls
 @inherits ModuleBase
 
 @if (PageState.EditMode)
 {
     <div class="card m-2">
         <div class="card-body d-flex flex-column flex-sm-row align-items-start gap-2">
-            <h6 class="card-title text-primary m-0 me-auto">Music Player Module</h6>
+            <h6 class="card-title text-primary m-0 me-auto">Controls Module</h6>
             <a class="btn btn-primary" href="@_settingsUrl">
                 <span class="bi bi-gear"></span> Settings
             </a>
@@ -13,26 +13,30 @@
     </div>
 }
 
-@if (!string.IsNullOrEmpty(_currentTrack))
-{
-    <div class="music-player-minimal">
+<div class="controls-minimal">
+    <button @onclick="ToggleFullscreen" class="btn btn-link controls-control" title="@(_isFullscreen ? "Exit Fullscreen" : "Fullscreen")">
+        <span class="oi oi-@(_isFullscreen ? "fullscreen-exit" : "fullscreen-enter")"></span>
+    </button>
+
+    @if (!string.IsNullOrEmpty(_currentTrack))
+    {
         <audio @ref="_audioPlayer" src="@_currentTrack" loop="@_isLooping" muted="@_isMuted"></audio>
 
         @if (_isPlaying)
         {
-            <button @onclick="Pause" class="btn btn-link music-control" title="Pause">
+            <button @onclick="Pause" class="btn btn-link controls-control" title="Pause">
                 <span class="oi oi-media-pause"></span>
             </button>
         }
         else
         {
-            <button @onclick="Play" class="btn btn-link music-control" title="Play">
+            <button @onclick="Play" class="btn btn-link controls-control" title="Play">
                 <span class="oi oi-media-play"></span>
             </button>
         }
         
-        <button @onclick="ToggleMute" class="btn btn-link music-control" title="@(_isMuted ? "Unmute" : "Mute")">
+        <button @onclick="ToggleMute" class="btn btn-link controls-control" title="@(_isMuted ? "Unmute" : "Mute")">
             <span class="oi oi-volume-@(_isMuted ? "off" : "high")"></span>
         </button>
-    </div>
-}
+    }
+</div>

@@ -1,0 +1,29 @@
+.controls-edit-bar {
+    margin-bottom: 10px;
+}
+
+.controls-minimal {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.controls-control {
+    color: #666;
+    padding: 4px 8px;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.controls-control:hover {
+    color: #333;
+}
+
+.controls-control:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+audio {
+    display: none;
+}
