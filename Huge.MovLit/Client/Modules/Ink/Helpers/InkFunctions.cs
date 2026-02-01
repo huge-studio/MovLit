@@ -30,7 +30,7 @@ namespace Huge.Ink
 
         public static void BindExternalFunctions(InkRun.Story story, SiteState siteState, ModuleBase moduleBase, NavigationManager nav, PageState pageState)
         {
-            story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState));
+            story.BindExternalFunction("playSound", (string url) => PlaySound(url, siteState, nav));
             story.BindExternalFunction("showImage", (string url) => ShowImage(url, siteState, nav));
             story.BindExternalFunction("showLottie", (string url) => ShowLottie(url, siteState, nav));
             story.BindExternalFunction("navigateUrl", (string url) => NavigateUrl(url, moduleBase, nav));
@@ -72,9 +72,13 @@ namespace Huge.Ink
         }
 
         // play sound
-        public static void PlaySound(string soundUrl, SiteState siteState)
+        public static void PlaySound(string soundUrl, SiteState siteState, NavigationManager nav)
         {
-            siteState.Properties.SoundUrl = soundUrl;
+            soundUrl = UrlParser.ParseTagUrl(new List<string> { $"sound:{soundUrl}" }, "sound:", nav);
+            if (!string.IsNullOrEmpty(soundUrl))
+            {
+                siteState.Properties.SoundUrl = soundUrl;
+            }
         }
         // show image
         public static void ShowImage(string imageUrl, SiteState siteState, NavigationManager nav)

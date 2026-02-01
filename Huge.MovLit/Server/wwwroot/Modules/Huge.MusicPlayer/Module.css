@@ -1,0 +1,29 @@
+.music-player-edit-bar {
+    margin-bottom: 10px;
+}
+
+.music-player-minimal {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.music-control {
+    color: #666;
+    padding: 4px 8px;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.music-control:hover {
+    color: #333;
+}
+
+.music-control:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+audio {
+    display: none;
+}
