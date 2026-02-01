@@ -1,0 +1,37 @@
+@namespace Huge.Inventory
+@inherits ModuleBase
+@inject ISettingService SettingService
+
+<div class="mb-3">
+    <Label HelpText="The type of inventory items to display (e.g., 'mask', 'evidence', 'key')">Inventory Type</Label>
+    <input class="form-control" @bind="@_type" placeholder="mask" />
+</div>
+
+@code {
+    private string _type = "";
+
+    public override string Title => "Inventory Settings";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            _type = SettingService.GetSetting(settings, "InventoryType", "");
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error loading settings {Error}", ex.Message);
+            AddModuleMessage("Error loading settings", MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+        SettingService.SetSetting(settings, "InventoryType", _type);
+        await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+    }
+}
+
