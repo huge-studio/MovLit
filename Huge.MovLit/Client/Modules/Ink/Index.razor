@@ -38,25 +38,11 @@ else if (loading)
 else
 {
     <div class="ink-container">
-        <div class="card mb-3 prompt-card">
+        <div class="prompt-card">
             <div class="card-body">
                 <div class="prompt-text mb-3 @( _settingsVM.CenterJustify ? "text-center" : string.Empty )" data-center-text="@_settingsVM.CenterJustify.ToString()">
                     @_currentLine
                 </div>
-            </div>
-            <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
-                <button type="button"
-                        class="my-1 btn btn-sm btn-secondary"
-                        disabled>
-                    <i class="bi bi-eye"></i> @_viewCount
-                </button>
-                <button type="button"
-                        class="btn btn-sm my-1 @(_liked ? "btn-danger" : "btn-outline-danger")"
-                        disabled="@(!_canLike)"
-                        title="@(_liked ? "Unlike" : "Like")"
-                        @onclick="ToggleLikeAsync">
-                    <i class="bi  @(_liked ? "bi-heart-fill" : "bi-heart")"></i> @_likeCount
-                </button>
             </div>
         </div>
 

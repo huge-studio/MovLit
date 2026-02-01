@@ -13,30 +13,50 @@
     </div>
 }
 
-<div class="controls-minimal">
-    <button @onclick="ToggleFullscreen" class="btn btn-link controls-control" title="@(_isFullscreen ? "Exit Fullscreen" : "Fullscreen")">
-        <span class="oi oi-@(_isFullscreen ? "fullscreen-exit" : "fullscreen-enter")"></span>
-    </button>
-
-    @if (!string.IsNullOrEmpty(_currentTrack))
-    {
-        <audio @ref="_audioPlayer" src="@_currentTrack" loop="@_isLooping" muted="@_isMuted"></audio>
-
-        @if (_isPlaying)
-        {
-            <button @onclick="Pause" class="btn btn-link controls-control" title="Pause">
-                <span class="oi oi-media-pause"></span>
-            </button>
-        }
-        else
-        {
-            <button @onclick="Play" class="btn btn-link controls-control" title="Play">
-                <span class="oi oi-media-play"></span>
-            </button>
-        }
-        
-        <button @onclick="ToggleMute" class="btn btn-link controls-control" title="@(_isMuted ? "Unmute" : "Mute")">
-            <span class="oi oi-volume-@(_isMuted ? "off" : "high")"></span>
+<div class="controls-bar">
+    <div class="controls-left">
+        <button @onclick="ToggleFullscreen" class="btn btn-link controls-control" title="@(_isFullscreen ? "Exit Fullscreen" : "Fullscreen")">
+            <span class="oi oi-@(_isFullscreen ? "fullscreen-exit" : "fullscreen-enter")"></span>
         </button>
-    }
+
+        @if (!string.IsNullOrEmpty(_currentTrack))
+        {
+            <audio @ref="_audioPlayer" src="@_currentTrack" loop="@_isLooping" muted="@_isMuted"></audio>
+
+            @if (_isPlaying)
+            {
+                <button @onclick="Pause" class="btn btn-link controls-control" title="Pause">
+                    <span class="oi oi-media-pause"></span>
+                </button>
+            }
+            else
+            {
+                <button @onclick="Play" class="btn btn-link controls-control" title="Play">
+                    <span class="oi oi-media-play"></span>
+                </button>
+            }
+            
+            <button @onclick="ToggleMute" class="btn btn-link controls-control" title="@(_isMuted ? "Unmute" : "Mute")">
+                <span class="oi oi-volume-@(_isMuted ? "off" : "high")"></span>
+            </button>
+        }
+    </div>
+
+    <div class="controls-spacer"></div>
+
+    <div class="controls-right">
+        <button type="button"
+                class="btn btn-link controls-control"
+                disabled
+                title="Views">
+            <i class="bi bi-eye"></i> @_viewCount
+        </button>
+        <button type="button"
+                class="btn btn-link controls-control @(_liked ? "controls-liked" : "")"
+                disabled="@(!_canLike)"
+                title="@(_liked ? "Unlike" : "Like")"
+                @onclick="ToggleLikeAsync">
+            <i class="bi @(_liked ? "bi-heart-fill" : "bi-heart")"></i> @_likeCount
+        </button>
+    </div>
 </div>
