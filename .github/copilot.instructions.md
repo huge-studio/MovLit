@@ -35,6 +35,13 @@
 - Server project contains MVC Controllers, one for each module that match the client service calls.  Each controller will call server-side services or repositories managed by DI
 - Server projects use repository patterns for modules, one repository class per module to match the controllers. 
 
+## Git and Source Control Guidelines
+
+- **NEVER execute git commands (commit, push, pull, checkout, branch, etc.) without explicit user instructions.**
+- Only create GitHub issues, branches, or pull requests when specifically requested by the user.
+- Do not automatically commit or push changes without user approval.
+- When asked to create an issue or PR, wait for user confirmation before proceeding with git operations.
+
 ## Error Handling and Validation
 
 - Implement proper error handling for Blazor pages and API calls.

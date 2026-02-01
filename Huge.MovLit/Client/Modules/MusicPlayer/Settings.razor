@@ -1,0 +1,7 @@
+@namespace Huge.MusicPlayer
+@inherits ModuleBase
+
+<div class="mb-3">
+    <Label HelpText="Audio file URL. Supports: MP3, WAV, OGG, AAC. Leave empty to only respond to Ink playSound() calls.">Audio URL</Label>
+    <input type="text" class="form-control" @bind="@_trackUrl" placeholder="/files/music/song.mp3" />
+</div>
