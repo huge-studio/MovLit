@@ -2,10 +2,48 @@
     margin-bottom: 10px;
 }
 
+.controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
 .controls-minimal {
     display: inline-flex;
     gap: 8px;
     align-items: center;
+}
+
+.controls-metrics {
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.controls-metric {
+    color: #666;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    text-decoration: none;
+}
+
+.controls-metric:hover:not(:disabled) {
+    color: #333;
+}
+
+.controls-metric.liked {
+    color: #dc3545;
+}
+
+.controls-metric:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
 
 .controls-control {

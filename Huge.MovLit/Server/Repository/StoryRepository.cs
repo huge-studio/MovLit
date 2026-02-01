@@ -17,6 +17,12 @@ namespace Huge.MovLit.Repository
             return await db.Story.AsNoTracking().FirstOrDefaultAsync(s => s.ModuleId == moduleId);
         }
 
+        public async Task<Models.Story> GetStoryByPageAsync(int pageId)
+        {
+            using var db = _factory.CreateDbContext();
+            return await db.Story.AsNoTracking().FirstOrDefaultAsync(s => s.PageId == pageId);
+        }
+
         public async Task<Models.Story> GetStoryAsync(int StoryId, bool tracking = true)
         {
             using var db = _factory.CreateDbContext();

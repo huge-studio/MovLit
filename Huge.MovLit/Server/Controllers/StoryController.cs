@@ -54,6 +54,33 @@ namespace Huge.MovLit.Controllers
             }
         }
 
+        // GET: api/<controller>/page?moduleid=x&pageid=y
+        [HttpGet("page")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
+        public async Task<ActionResult<Models.Story>> GetForPage([FromQuery] int moduleid, [FromQuery] int pageid)
+        {
+            try
+            {
+                if (!IsAuthorizedEntityId(EntityNames.Module, moduleid))
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Story GetByPage Attempt {ModuleId} {PageId}", moduleid, pageid);
+                    return Forbid();
+                }
+
+                var story = await _repo.GetStoryByPageAsync(pageid);
+                if (story == null)
+                {
+                    return NotFound();
+                }
+                return Ok(story);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Error retrieving story for page {PageId}: {Message}", pageid, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving story for page");
+            }
+        }
+
         // GET: api/<controller>?moduleid=x&filter=y&take=z
         [HttpGet]
         [Authorize(Policy = PolicyNames.ViewModule)]

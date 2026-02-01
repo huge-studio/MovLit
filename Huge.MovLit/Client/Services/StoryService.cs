@@ -31,6 +31,14 @@ namespace Huge.MovLit.Services
             return (data, response.StatusCode);
         }
 
+        // Get the story for a page (if any)
+        public async Task<(Models.Story, HttpStatusCode)> GetForPageAsync(int ModuleId, int PageId)
+        {
+            var url = CreateAuthorizationPolicyUrl($"{Apiurl}/page?moduleid={ModuleId}&pageid={PageId}", EntityNames.Module, ModuleId);
+            (var data, var response) = await GetJsonWithResponseAsync<Models.Story>(url);
+            return (data, response.StatusCode);
+        }
+
         // Single item by id
         public async Task<(Models.Story, HttpStatusCode)> GetByIdAsync(int StoryId, int ModuleId)
         {

@@ -20,3 +20,8 @@
 .card-body{
     padding-bottom: 0 !important;
 }
+
+.ink-container .prompt-card {
+    border: none !important;
+    box-shadow: none !important;
+}

@@ -38,10 +38,6 @@ namespace Huge.Ink
         protected Story _storyEntity;
         private bool _storyLoaded = false;
         private bool _viewSent = false;
-        private int _viewCount = 0;
-        private int _likeCount = 0;
-        private bool _liked = false;
-        private bool _canLike = false;
 
         protected InkRun.Story _story;
         private bool disposedValue;
@@ -102,11 +98,6 @@ namespace Huge.Ink
 
             try
             {
-                _canLike = PageState.VisitorId > 0 || (PageState.User?.UserId ?? 0) > 0;
-
-                // metrics after potential view logged in OnInitializedAsync
-                await LoadMetricsAsync();
-
                 if (_story.canContinue)
                 {
                     Next();
@@ -203,40 +194,6 @@ namespace Huge.Ink
             };
             await StoryService.AddView(ModuleState.ModuleId, view);
             _viewSent = true;
-        }
-
-        private async Task ToggleLikeAsync()
-        {
-            if (!_canLike || _storyEntity?.StoryId <= 0) return;
-
-            var like = new StoryLike
-            {
-                StoryId = _storyEntity.StoryId,
-                VisitorId = PageState.VisitorId > 0 ? PageState.VisitorId : null,
-                UserId = (PageState.User?.UserId ?? 0) > 0 ? PageState.User.UserId : (int?)null,
-            };
-            var (result, code) = await StoryService.ToggleLikeAsync(ModuleState.ModuleId, like);
-            if (code == HttpStatusCode.OK)
-            {
-                _liked = !_liked;
-                _likeCount += _liked ? 1 : -1;
-            }
-        }
-
-        private async Task LoadMetricsAsync()
-        {
-            if (_storyEntity?.StoryId <= 0) return;
-            var ids = new[] { _storyEntity.StoryId };
-            var (data, code) = await StoryService.GetMetricsAsync(ModuleState.ModuleId, ids);
-            if (code == HttpStatusCode.OK && data != null && data.TryGetValue(_storyEntity.StoryId, out var m))
-            {
-                _viewCount = m.ViewCount;
-                _likeCount = m.LikeCount;
-                var visitorId = PageState.VisitorId > 0 ? (int?)PageState.VisitorId : null;
-                var userId = (PageState.User?.UserId ?? 0) > 0 ? (int?)PageState.User.UserId : null;
-                _liked = (visitorId.HasValue && (m.VisitorLikeIds?.Contains(visitorId) ?? false))
-                         || (userId.HasValue && (m.UserLikeIds?.Contains(userId) ?? false));
-            }
         }
 
         protected void CompileStory()
