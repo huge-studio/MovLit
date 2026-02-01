@@ -2,7 +2,24 @@
     margin-bottom: 10px;
 }
 
-.controls-minimal {
+.controls-bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.controls-left {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.controls-spacer {
+    flex-grow: 1;
+}
+
+.controls-right {
     display: inline-flex;
     gap: 8px;
     align-items: center;
@@ -13,6 +30,7 @@
     padding: 4px 8px;
     font-size: 1.2rem;
     transition: color 0.2s;
+    text-decoration: none;
 }
 
 .controls-control:hover {
@@ -22,6 +40,14 @@
 .controls-control:focus {
     outline: none;
     box-shadow: none;
+}
+
+.controls-control.controls-liked {
+    color: #dc3545;
+}
+
+.controls-control.controls-liked:hover {
+    color: #bb2d3b;
 }
 
 audio {

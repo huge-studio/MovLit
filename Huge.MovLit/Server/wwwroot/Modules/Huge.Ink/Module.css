@@ -20,3 +20,9 @@
 .card-body{
     padding-bottom: 0 !important;
 }
+
+/* Remove border from the prompt card */
+.prompt-card {
+    border: none;
+    background: transparent;
+}
