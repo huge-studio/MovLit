@@ -4,11 +4,9 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web;
 using Huge.MovLit.Enums;
 
 namespace Huge.Controls
@@ -46,7 +44,7 @@ namespace Huge.Controls
 
                 await LoadSettings();
                 
-                // Check URL for fullscreen parameter
+                // Check URL for fullscreen parameter using PageState.QueryString
                 CheckFullscreenFromUrl();
             }
             catch (Exception ex)
@@ -85,12 +83,10 @@ namespace Huge.Controls
 
         private void CheckFullscreenFromUrl()
         {
-            var uri = new Uri(NavigationManager.Uri);
-            var qs = HttpUtility.ParseQueryString(uri.Query);
-            var fullscreenValue = qs.Get("fullscreen");
-            
-            if (!string.IsNullOrWhiteSpace(fullscreenValue))
+            // Use PageState.QueryString dictionary for reading query parameters
+            if (PageState.QueryString.ContainsKey("fullscreen"))
             {
+                var fullscreenValue = PageState.QueryString["fullscreen"];
                 _isFullscreen = string.Equals(fullscreenValue, "true", StringComparison.OrdinalIgnoreCase);
             }
         }
@@ -118,14 +114,21 @@ namespace Huge.Controls
 
         private void UpdateUrlWithFullscreen()
         {
-            var uri = new Uri(NavigationManager.Uri);
-            var baseUri = uri.GetLeftPart(UriPartial.Path);
-            var qs = HttpUtility.ParseQueryString(uri.Query);
+            // Build new URL using PageState.Uri base path
+            var baseUri = PageState.Uri.GetLeftPart(UriPartial.Path);
             
-            // Update fullscreen parameter
-            qs["fullscreen"] = _isFullscreen.ToString().ToLower();
+            // Build query string from PageState.QueryString, updating fullscreen
+            var queryParams = new System.Collections.Generic.List<string>();
+            foreach (var kvp in PageState.QueryString)
+            {
+                if (!string.Equals(kvp.Key, "fullscreen", StringComparison.OrdinalIgnoreCase))
+                {
+                    queryParams.Add($"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}");
+                }
+            }
+            queryParams.Add($"fullscreen={_isFullscreen.ToString().ToLower()}");
             
-            var queryString = qs.ToString();
+            var queryString = string.Join("&", queryParams);
             var newUri = string.IsNullOrEmpty(queryString) ? baseUri : $"{baseUri}?{queryString}";
             
             NavigationManager.NavigateTo(newUri, forceLoad: false, replace: true);
