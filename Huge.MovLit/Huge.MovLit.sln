@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Huge.MovLit.Server", "Server\Huge.MovLit.Server.csproj", "{04B05448-788F-433D-92C0-FED35122D45A}"
 EndProject
@@ -21,6 +21,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5357D2AF-7AA3-498C-AA77-9A6ECBD83267}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitmodules = ..\.gitmodules
+		..\.github\copilot.instructions.md = ..\.github\copilot.instructions.md
 	EndProjectSection
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Huge.Movlit.Data", "Huge.Movlit.Data\Huge.Movlit.Data.sqlproj", "{5ED1C4D3-AB30-42B9-A1DA-AD095D104749}"

@@ -12,5 +12,6 @@ namespace Huge.MovLit.Enums
         public const string Lottie = "Lottie";
         public const string Image = "Image";
         public const string SoundUrl = "SoundUrl";
+        public const string InventoryRefreshed = "InventoryRefreshed";
     }
 }

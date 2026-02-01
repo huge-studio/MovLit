@@ -1,0 +1,35 @@
+@namespace Huge.Inventory
+@inherits ModuleBase
+
+@if (PageState.EditMode)
+{
+    <div class="card m-2 inventory-edit-card">
+        <div class="card-body d-flex flex-column flex-sm-row align-items-start gap-2">
+            <h6 class="card-title text-primary m-0 me-auto">Inventory Module</h6>
+            <a class="btn btn-primary" href="@_settingsUrl">
+                <span class="bi bi-gear"></span> Settings
+            </a>
+        </div>
+    </div>
+}
+
+<div class="inventory-container">
+    <div class="inventory-strip">
+        @if (!string.IsNullOrEmpty(_filterType))
+        {
+            @foreach (var item in _allItems)
+            {
+                <div class="inventory-item @(item.IsCollected ? "collected" : "empty")" title="@item.Name">
+                    @if (item.IsCollected && !string.IsNullOrEmpty(item.Icon))
+                    {
+                        <img src="@item.Icon" alt="@item.Name" class="inventory-icon" />
+                    }
+                    else
+                    {
+                        <div class="inventory-placeholder"></div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>

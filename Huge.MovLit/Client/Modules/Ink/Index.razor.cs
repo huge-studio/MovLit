@@ -21,6 +21,7 @@ namespace Huge.Ink
         [Inject] protected NavigationManager NavigationManager { get; set; }
         [Inject] protected ISettingService SettingService { get; set; }
         [Inject] protected StoryService StoryService { get; set; }
+        [Inject] protected InventoryService InventoryService { get; set; }
 
         private bool loading = true;
 
@@ -255,7 +256,7 @@ namespace Huge.Ink
                 var compiledStory = compiler.Compile();
                 _story = compiledStory;
 
-                InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager, PageState);
+                InkFunctions.BindExternalFunctions(_story, SiteState, this, NavigationManager, PageState, InventoryService);
             }
             catch (Exception ex)
             {
