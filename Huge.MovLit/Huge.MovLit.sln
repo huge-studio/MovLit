@@ -28,6 +28,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Huge.Movlit.Data", "Huge.Mo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{F9045A8A-65D3-48BC-9F74-3C3CD473E465}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Huge.MovLit.Specs", "Specs\Huge.MovLit.Specs.csproj", "{B1A2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 		{5ED1C4D3-AB30-42B9-A1DA-AD095D104749}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ED1C4D3-AB30-42B9-A1DA-AD095D104749}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5ED1C4D3-AB30-42B9-A1DA-AD095D104749}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B1A2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1A2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1A2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1A2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
